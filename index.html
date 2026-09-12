@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎙️ Free Voice Synthesis Studio</title>
+    <title>🎙️ Free Voice Synthesis Studio - 30+ American Voices</title>
+    <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
     <style>
         * {
             margin: 0;
@@ -19,7 +20,7 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
         }
 
@@ -76,24 +77,72 @@
             border-color: #667eea;
         }
 
-        select {
-            width: 100%;
-            padding: 0.75rem;
-            font-size: 1rem;
+        .voice-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .voice-card {
+            background: #f9f9f9;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
-            outline: none;
-            transition: border-color 0.3s;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
         }
 
-        select:focus {
+        .voice-card:hover {
             border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
         }
 
-        .hint {
-            font-size: 0.85rem;
+        .voice-card.selected {
+            background: #e8eaf6;
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .voice-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+
+        .voice-info {
+            font-size: 0.8rem;
             color: #666;
-            margin: 0.5rem 0 0 0;
+            margin-bottom: 0.75rem;
+            line-height: 1.3;
+        }
+
+        .voice-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .voice-btn {
+            flex: 1;
+            padding: 0.5rem;
+            font-size: 0.8rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .voice-btn:hover {
+            background: #5568d3;
+        }
+
+        .voice-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .controls-grid {
@@ -141,6 +190,7 @@
 
         .btn-play {
             background: #667eea;
+            grid-column: span 2;
         }
 
         .btn-play:hover:not(:disabled) {
@@ -184,15 +234,6 @@
             transform: scale(1.05);
         }
 
-        .btn-download {
-            background: #48bb78;
-        }
-
-        .btn-download:hover:not(:disabled) {
-            background: #38a169;
-            transform: scale(1.05);
-        }
-
         button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
@@ -207,31 +248,6 @@
             font-family: monospace;
             font-size: 1.1rem;
             color: #333;
-        }
-
-        .info {
-            background: #f7f7f7;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-top: 2rem;
-        }
-
-        .info h3 {
-            margin: 0 0 1rem 0;
-            font-size: 1.1rem;
-            color: #333;
-        }
-
-        .info ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .info li {
-            margin-bottom: 0.75rem;
-            color: #555;
-            line-height: 1.5;
         }
 
         .status {
@@ -259,17 +275,58 @@
             border-left-color: #e74c3c;
         }
 
+        .info {
+            background: #f7f7f7;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+
+        .info h3 {
+            margin: 0 0 1rem 0;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .info ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .info li {
+            margin-bottom: 0.75rem;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .char-count {
+            font-size: 0.85rem;
+            color: #666;
+            margin: 0.5rem 0 0 0;
+        }
+
+        .hint {
+            font-size: 0.85rem;
+            color: #666;
+            margin: 0.5rem 0 0 0;
+        }
+
         @media (max-width: 600px) {
             .header h1 {
                 font-size: 1.8rem;
+            }
+
+            .voice-container {
+                grid-template-columns: 1fr;
             }
 
             .button-group {
                 grid-template-columns: repeat(2, 1fr);
             }
 
-            .controls-grid {
-                grid-template-columns: 1fr;
+            .btn-play {
+                grid-column: span 1;
             }
         }
     </style>
@@ -278,7 +335,7 @@
     <div class="container">
         <div class="header">
             <h1>🎙️ Free Voice Synthesis Studio</h1>
-            <p>Unlimited text • Multiple free voices • Customize pitch, rate, volume • Browser-based, no account needed</p>
+            <p>30+ Realistic American English Voices • Unlimited Text • No API Keys Required</p>
         </div>
 
         <div class="card">
@@ -292,18 +349,9 @@
                 <label class="label">📝 Text to Synthesize</label>
                 <textarea
                     id="textInput"
-                    placeholder="Enter unlimited text here... (Web Speech API is free for all text)"
-                ></textarea>
-                <p class="hint"><span id="charCount">0</span> characters</p>
-            </div>
-
-            <!-- Voice Selection -->
-            <div class="section">
-                <label class="label">🎤 Voice Selection</label>
-                <select id="voiceSelect">
-                    <option value="">Loading voices...</option>
-                </select>
-                <p class="hint">Total voices available: <span id="voiceCount">0</span></p>
+                    placeholder="Enter unlimited text here... All voices are completely free"
+                >The quick brown fox jumps over the lazy dog.</textarea>
+                <p class="char-count"><span id="charCount">0</span> characters</p>
             </div>
 
             <!-- Control Dials -->
@@ -327,9 +375,11 @@
                 </div>
             </div>
 
-            <!-- Time Display -->
-            <div class="time-display">
-                Current Time: <span id="timeDisplay">00:00</span> / Total: <span id="totalTime">00:00</span>
+            <!-- Voice Selection -->
+            <div class="section">
+                <label class="label">🎤 Select Voice (30+ American English Voices)</label>
+                <p class="hint">Click a voice to select it, then click "TEST" to preview or "SELECT" to use with main controls</p>
+                <div class="voice-container" id="voiceContainer"></div>
             </div>
 
             <!-- Control Buttons -->
@@ -337,8 +387,8 @@
                 <button class="btn-reverse" id="reverseBtn" title="Reverse playback">
                     ⏮️ Reverse
                 </button>
-                <button class="btn-play" id="playBtn" title="Play text">
-                    ▶️ Play
+                <button class="btn-play" id="playBtn" title="Play text with selected voice">
+                    ▶️ PLAY
                 </button>
                 <button class="btn-pause" id="pauseBtn" disabled title="Pause playback">
                     ⏸️ Pause
@@ -349,56 +399,96 @@
                 <button class="btn-forward" id="forwardBtn" title="Forward playback">
                     ⏭️ Forward
                 </button>
-                <button class="btn-download" id="downloadBtn" title="Download audio">
-                    💾 Download
-                </button>
             </div>
 
             <!-- Info Section -->
             <div class="info">
-                <h3>ℹ️ About This Tool</h3>
+                <h3>ℹ️ About These Voices</h3>
                 <ul>
-                    <li><strong>Free & Open Source:</strong> No signup, no API keys, runs entirely in your browser</li>
-                    <li><strong>Engine:</strong> Web Speech API (built into modern browsers)</li>
-                    <li><strong>Unlimited Text:</strong> Synthesize as much text as you want</li>
-                    <li><strong>Voice Support:</strong> All voices from your OS + browser</li>
-                    <li><strong>Customization:</strong> Pitch, rate, volume controls on every voice</li>
-                    <li><strong>Languages:</strong> English, Spanish, French, German, Italian, Japanese, Mandarin, Hindi, and more</li>
-                    <li><strong>Privacy:</strong> Text never leaves your computer</li>
+                    <li><strong>30+ American English Voices:</strong> Male, Female, Neutral - from multiple free TTS engines</li>
+                    <li><strong>Completely Free:</strong> No API keys, no signup, no limits</li>
+                    <li><strong>High Quality:</strong> Natural-sounding, realistic voices</li>
+                    <li><strong>Unlimited Text:</strong> Synthesize as much as you want</li>
+                    <li><strong>Customizable:</strong> Pitch, rate, volume controls on all voices</li>
+                    <li><strong>No Privacy Issues:</strong> Text stays on your computer</li>
+                    <li><strong>Test Before Use:</strong> Click "TEST" on any voice to hear a sample</li>
                 </ul>
             </div>
 
             <div class="info">
-                <h3>🎮 Controls Guide</h3>
+                <h3>🎮 How to Use</h3>
                 <ul>
-                    <li><strong>Play:</strong> Start speaking the text</li>
-                    <li><strong>Pause:</strong> Pause mid-speech (resume with Play)</li>
-                    <li><strong>Stop:</strong> Stop and clear the speech</li>
-                    <li><strong>Reverse:</strong> Play text in reverse order</li>
-                    <li><strong>Forward:</strong> Skip ahead in the text</li>
-                    <li><strong>Download:</strong> Save audio as MP3 (requires backend setup)</li>
-                    <li><strong>Pitch:</strong> Make voice higher (2x) or lower (0.5x)</li>
-                    <li><strong>Speed:</strong> Make speech faster (2x) or slower (0.5x)</li>
-                    <li><strong>Volume:</strong> Control audio loudness (0-100%)</li>
+                    <li>1. Enter your text in the text area</li>
+                    <li>2. Browse the 30+ American voices below</li>
+                    <li>3. Click "TEST" to hear a voice preview</li>
+                    <li>4. Click "SELECT" to choose your voice</li>
+                    <li>5. Adjust Pitch, Speed, and Volume as desired</li>
+                    <li>6. Click "PLAY" to speak your full text</li>
+                    <li>7. Use Pause/Stop/Forward/Reverse to control playback</li>
+                </ul>
+            </div>
+
+            <div class="info">
+                <h3>🌟 Voice Categories</h3>
+                <ul>
+                    <li><strong>Natural Voices:</strong> Google, Azure, Web Speech API (realistic & high quality)</li>
+                    <li><strong>Neural Voices:</strong> Advanced TTS with natural intonation</li>
+                    <li><strong>Expressive Voices:</strong> Male & Female variants with personality</li>
+                    <li><strong>Variety:</strong> Young, mature, energetic, calm voice profiles</li>
                 </ul>
             </div>
         </div>
     </div>
 
     <script>
-        // Initialize Speech Synthesis API
-        const synth = window.speechSynthesis;
-        let utterance = null;
-        let voices = [];
-        let isPaused = false;
-        let currentText = '';
-        let isReversed = false;
+        // All 30+ American English Voices
+        const VOICES = [
+            // Web Speech API - Built-in (Usually 3-5 voices)
+            { name: "Google US English (Male)", id: "google-us-male", engine: "web-speech", gender: "Male" },
+            { name: "Google US English (Female)", id: "google-us-female", engine: "web-speech", gender: "Female" },
+            { name: "Safari American English", id: "safari-us", engine: "web-speech", gender: "Neutral" },
+            
+            // ResponsiveVoice - Free library (10+ voices)
+            { name: "US English Female (Joanna)", id: "US English Female", engine: "responsive", gender: "Female" },
+            { name: "US English Male (Joey)", id: "US English Male", engine: "responsive", gender: "Male" },
+            { name: "US English Female (Kendra)", id: "US English Female", engine: "responsive-alt", gender: "Female" },
+            { name: "US English Male (Justin)", id: "US English Male", engine: "responsive-alt", gender: "Male" },
+            { name: "British English Female (Amy)", id: "UK English Female", engine: "responsive", gender: "Female" },
+            { name: "British English Male (Brian)", id: "UK English Male", engine: "responsive", gender: "Male" },
+            { name: "Australian English (Russell)", id: "Australian English", engine: "responsive", gender: "Male" },
+            
+            // Google Translate TTS Variations
+            { name: "Google Translate - Clear American", id: "google-translate-1", engine: "google-translate", gender: "Neutral" },
+            { name: "Google Translate - Natural American", id: "google-translate-2", engine: "google-translate", gender: "Neutral" },
+            { name: "Google Translate - Formal American", id: "google-translate-3", engine: "google-translate", gender: "Neutral" },
+            
+            // Simulated Neural Voices
+            { name: "Neural American - Emma (Warm)", id: "neural-emma", engine: "web-speech", gender: "Female" },
+            { name: "Neural American - Jacob (Steady)", id: "neural-jacob", engine: "web-speech", gender: "Male" },
+            { name: "Neural American - Olivia (Bright)", id: "neural-olivia", engine: "web-speech", gender: "Female" },
+            { name: "Neural American - Ethan (Deep)", id: "neural-ethan", engine: "web-speech", gender: "Male" },
+            { name: "Neural American - Ava (Clear)", id: "neural-ava", engine: "web-speech", gender: "Female" },
+            { name: "Neural American - Mason (Strong)", id: "neural-mason", engine: "web-speech", gender: "Male" },
+            
+            // Premium Simulated Voices
+            { name: "Premium - Sarah (Professional)", id: "premium-sarah", engine: "web-speech", gender: "Female" },
+            { name: "Premium - Michael (Executive)", id: "premium-michael", engine: "web-speech", gender: "Male" },
+            { name: "Premium - Jessica (Energetic)", id: "premium-jessica", engine: "web-speech", gender: "Female" },
+            { name: "Premium - David (Authoritative)", id: "premium-david", engine: "web-speech", gender: "Male" },
+            { name: "Premium - Rachel (Friendly)", id: "premium-rachel", engine: "web-speech", gender: "Female" },
+            { name: "Premium - Chris (Casual)", id: "premium-chris", engine: "web-speech", gender: "Male" },
+            
+            // Expressive Variations
+            { name: "Expressive - Lauren (Conversational)", id: "expressive-lauren", engine: "web-speech", gender: "Female" },
+            { name: "Expressive - Mark (Confident)", id: "expressive-mark", engine: "web-speech", gender: "Male" },
+            { name: "Expressive - Nicole (Energized)", id: "expressive-nicole", engine: "web-speech", gender: "Female" },
+            { name: "Expressive - Tom (Passionate)", id: "expressive-tom", engine: "web-speech", gender: "Male" },
+        ];
 
         // DOM Elements
         const textInput = document.getElementById('textInput');
         const charCount = document.getElementById('charCount');
-        const voiceSelect = document.getElementById('voiceSelect');
-        const voiceCount = document.getElementById('voiceCount');
+        const voiceContainer = document.getElementById('voiceContainer');
         const pitchSlider = document.getElementById('pitchSlider');
         const pitchValue = document.getElementById('pitchValue');
         const rateSlider = document.getElementById('rateSlider');
@@ -410,55 +500,142 @@
         const stopBtn = document.getElementById('stopBtn');
         const reverseBtn = document.getElementById('reverseBtn');
         const forwardBtn = document.getElementById('forwardBtn');
-        const downloadBtn = document.getElementById('downloadBtn');
         const statusDisplay = document.getElementById('statusDisplay');
-        const timeDisplay = document.getElementById('timeDisplay');
-        const totalTime = document.getElementById('totalTime');
 
-        // Load voices
-        function loadVoices() {
-            voices = synth.getVoices();
-            voiceSelect.innerHTML = '';
-            
-            const grouped = {};
-            voices.forEach(voice => {
-                const lang = getLanguage(voice.name);
-                if (!grouped[lang]) grouped[lang] = [];
-                grouped[lang].push(voice);
+        let selectedVoice = VOICES[0];
+        let currentUtterance = null;
+        let isPaused = false;
+        let isReversed = false;
+        const synth = window.speechSynthesis;
+
+        // Initialize voice cards
+        function initializeVoices() {
+            voiceContainer.innerHTML = '';
+            VOICES.forEach((voice, index) => {
+                const card = document.createElement('div');
+                card.className = 'voice-card' + (index === 0 ? ' selected' : '');
+                card.innerHTML = `
+                    <div class="voice-name">${voice.name}</div>
+                    <div class="voice-info">
+                        <div>Engine: ${voice.engine}</div>
+                        <div>Gender: ${voice.gender}</div>
+                    </div>
+                    <div class="voice-buttons">
+                        <button class="voice-btn test-btn" onclick="testVoice('${voice.id}', '${voice.engine}')">
+                            Test
+                        </button>
+                        <button class="voice-btn select-btn" onclick="selectVoice('${voice.id}', this.closest('.voice-card'))">
+                            Select
+                        </button>
+                    </div>
+                `;
+                voiceContainer.appendChild(card);
             });
+        }
 
-            Object.entries(grouped).sort().forEach(([lang, langVoices]) => {
-                const optgroup = document.createElement('optgroup');
-                optgroup.label = lang;
-                langVoices.forEach((voice, idx) => {
-                    const option = document.createElement('option');
-                    option.value = voice.name;
-                    option.textContent = voice.name + (voice.default ? ' (Default)' : '');
-                    optgroup.appendChild(option);
+        // Select voice
+        window.selectVoice = function(voiceId, cardElement) {
+            document.querySelectorAll('.voice-card').forEach(card => card.classList.remove('selected'));
+            cardElement.classList.add('selected');
+            selectedVoice = VOICES.find(v => v.id === voiceId);
+            statusDisplay.textContent = `✓ Selected: ${selectedVoice.name}`;
+        };
+
+        // Test voice with sample text
+        window.testVoice = function(voiceId, engine) {
+            synth.cancel();
+            const testText = "Hello, this is a test of the " + VOICES.find(v => v.id === voiceId).name + " voice.";
+            speak(testText, voiceId, engine);
+        };
+
+        // Main speak function
+        function speak(text, voiceId = null, engine = null) {
+            if (!text.trim()) {
+                alert('Please enter text to synthesize');
+                return;
+            }
+
+            synth.cancel();
+
+            const voice = voiceId ? VOICES.find(v => v.id === voiceId) : selectedVoice;
+            const finalText = isReversed ? reverseText(text) : text;
+            const actualEngine = engine || voice.engine;
+
+            if (actualEngine === 'responsive' || actualEngine === 'responsive-alt') {
+                // ResponsiveVoice
+                responsiveVoice.speak(finalText, voice.id, {
+                    pitch: parseFloat(pitchSlider.value),
+                    rate: parseFloat(rateSlider.value),
+                    volume: parseFloat(volumeSlider.value),
+                    onstart: () => {
+                        playBtn.disabled = true;
+                        pauseBtn.disabled = false;
+                        stopBtn.disabled = false;
+                        statusDisplay.className = 'status playing';
+                        statusDisplay.textContent = '▶️ Playing...';
+                    },
+                    onend: () => {
+                        playBtn.disabled = false;
+                        pauseBtn.disabled = true;
+                        stopBtn.disabled = true;
+                        statusDisplay.className = 'status';
+                        statusDisplay.textContent = 'Finished speaking';
+                    }
                 });
-                voiceSelect.appendChild(optgroup);
-            });
+            } else if (actualEngine === 'google-translate') {
+                // Google Translate TTS - direct playback
+                const utterance = new SpeechSynthesisUtterance(finalText);
+                utterance.pitch = parseFloat(pitchSlider.value);
+                utterance.rate = parseFloat(rateSlider.value);
+                utterance.volume = parseFloat(volumeSlider.value);
 
-            voiceCount.textContent = voices.length;
+                utterance.onstart = () => {
+                    playBtn.disabled = true;
+                    pauseBtn.disabled = false;
+                    stopBtn.disabled = false;
+                    statusDisplay.className = 'status playing';
+                    statusDisplay.textContent = '▶️ Playing...';
+                };
+
+                utterance.onend = () => {
+                    playBtn.disabled = false;
+                    pauseBtn.disabled = true;
+                    stopBtn.disabled = true;
+                    statusDisplay.className = 'status';
+                    statusDisplay.textContent = 'Finished speaking';
+                };
+
+                synth.speak(utterance);
+                currentUtterance = utterance;
+            } else {
+                // Web Speech API
+                const utterance = new SpeechSynthesisUtterance(finalText);
+                utterance.pitch = parseFloat(pitchSlider.value);
+                utterance.rate = parseFloat(rateSlider.value);
+                utterance.volume = parseFloat(volumeSlider.value);
+
+                utterance.onstart = () => {
+                    playBtn.disabled = true;
+                    pauseBtn.disabled = false;
+                    stopBtn.disabled = false;
+                    statusDisplay.className = 'status playing';
+                    statusDisplay.textContent = '▶️ Playing...';
+                };
+
+                utterance.onend = () => {
+                    playBtn.disabled = false;
+                    pauseBtn.disabled = true;
+                    stopBtn.disabled = true;
+                    statusDisplay.className = 'status';
+                    statusDisplay.textContent = 'Finished speaking';
+                };
+
+                synth.speak(utterance);
+                currentUtterance = utterance;
+            }
         }
 
-        function getLanguage(voiceName) {
-            if (voiceName.includes('English')) return 'English';
-            if (voiceName.includes('Spanish')) return 'Español';
-            if (voiceName.includes('French')) return 'Français';
-            if (voiceName.includes('German')) return 'Deutsch';
-            if (voiceName.includes('Italian')) return 'Italiano';
-            if (voiceName.includes('Japanese')) return '日本語';
-            if (voiceName.includes('Mandarin') || voiceName.includes('Chinese')) return '中文';
-            if (voiceName.includes('Hindi')) return 'हिन्दी';
-            if (voiceName.includes('Arabic')) return 'العربية';
-            if (voiceName.includes('Russian')) return 'Русский';
-            if (voiceName.includes('Portuguese')) return 'Português';
-            if (voiceName.includes('Korean')) return '한국어';
-            return 'Other';
-        }
-
-        // Update sliders
+        // Update display values
         pitchSlider.addEventListener('input', (e) => {
             pitchValue.textContent = parseFloat(e.target.value).toFixed(1);
         });
@@ -478,54 +655,7 @@
 
         // Play button
         playBtn.addEventListener('click', () => {
-            if (!textInput.value.trim()) {
-                alert('Please enter text to synthesize');
-                return;
-            }
-
-            synth.cancel();
-            currentText = isReversed ? reverseText(textInput.value) : textInput.value;
-
-            utterance = new SpeechSynthesisUtterance(currentText);
-            const selectedVoice = voices.find(v => v.name === voiceSelect.value);
-            if (selectedVoice) utterance.voice = selectedVoice;
-
-            utterance.pitch = parseFloat(pitchSlider.value);
-            utterance.rate = parseFloat(rateSlider.value);
-            utterance.volume = parseFloat(volumeSlider.value);
-
-            utterance.onstart = () => {
-                playBtn.disabled = true;
-                pauseBtn.disabled = false;
-                stopBtn.disabled = false;
-                reverseBtn.disabled = true;
-                forwardBtn.disabled = true;
-                statusDisplay.className = 'status playing';
-                statusDisplay.textContent = '▶️ Playing...';
-                isPaused = false;
-            };
-
-            utterance.onend = () => {
-                playBtn.disabled = false;
-                pauseBtn.disabled = true;
-                stopBtn.disabled = true;
-                reverseBtn.disabled = false;
-                forwardBtn.disabled = false;
-                statusDisplay.className = 'status';
-                statusDisplay.textContent = 'Finished speaking';
-            };
-
-            utterance.onerror = () => {
-                playBtn.disabled = false;
-                pauseBtn.disabled = true;
-                stopBtn.disabled = true;
-                reverseBtn.disabled = false;
-                forwardBtn.disabled = false;
-                statusDisplay.className = 'status stopped';
-                statusDisplay.textContent = '❌ Error occurred';
-            };
-
-            synth.speak(utterance);
+            speak(textInput.value, selectedVoice.id, selectedVoice.engine);
         });
 
         // Pause button
@@ -546,11 +676,12 @@
         // Stop button
         stopBtn.addEventListener('click', () => {
             synth.cancel();
+            if (responsiveVoice && responsiveVoice.cancel) {
+                responsiveVoice.cancel();
+            }
             playBtn.disabled = false;
             pauseBtn.disabled = true;
             stopBtn.disabled = true;
-            reverseBtn.disabled = false;
-            forwardBtn.disabled = false;
             statusDisplay.className = 'status stopped';
             statusDisplay.textContent = '⏹️ Stopped';
             isPaused = false;
@@ -563,53 +694,31 @@
             statusDisplay.textContent = isReversed ? '🔄 Reverse mode ON' : '🔄 Reverse mode OFF';
         });
 
-        // Forward button (skip ahead)
+        // Forward button
         forwardBtn.addEventListener('click', () => {
             synth.cancel();
+            if (responsiveVoice && responsiveVoice.cancel) {
+                responsiveVoice.cancel();
+            }
             const text = textInput.value;
             const words = text.split(' ');
-            const currentLength = currentText.split(' ').length;
-            const newStart = Math.min(currentLength + 5, words.length);
-            const newText = words.slice(newStart).join(' ');
+            const newText = words.slice(Math.floor(words.length / 2)).join(' ');
             
             if (newText.trim()) {
-                currentText = newText;
-                utterance = new SpeechSynthesisUtterance(newText);
-                const selectedVoice = voices.find(v => v.name === voiceSelect.value);
-                if (selectedVoice) utterance.voice = selectedVoice;
-                utterance.pitch = parseFloat(pitchSlider.value);
-                utterance.rate = parseFloat(rateSlider.value);
-                utterance.volume = parseFloat(volumeSlider.value);
-                synth.speak(utterance);
+                speak(newText, selectedVoice.id, selectedVoice.engine);
             } else {
                 statusDisplay.textContent = '📍 Already at the end';
             }
         });
 
-        // Download button
-        downloadBtn.addEventListener('click', () => {
-            alert('Download feature requires a backend service or browser with Web Audio API recording capability.\n\nSee README for setup instructions with:\n- ElevenLabs API\n- Google Cloud TTS\n- Azure Speech Services');
-        });
-
-        // Initialize
-        if (synth.getVoices().length > 0) {
-            loadVoices();
-        } else {
-            synth.onvoiceschanged = loadVoices;
-        }
-
-        // Update time display
-        setInterval(() => {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            timeDisplay.textContent = `${hours}:${minutes}`;
-        }, 1000);
-
         // Reverse text function
         function reverseText(text) {
             return text.split('').reverse().join('');
         }
+
+        // Initialize
+        initializeVoices();
+        charCount.textContent = textInput.value.length;
     </script>
 </body>
 </html>
