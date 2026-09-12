@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎙️ Free Voice Synthesis Studio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .label {
+            display: block;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: #333;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 1rem;
+            font-size: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: monospace;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            border-color: #667eea;
+        }
+
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            border-color: #667eea;
+        }
+
+        .hint {
+            font-size: 0.85rem;
+            color: #666;
+            margin: 0.5rem 0 0 0;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .control {
+            display: flex;
+            flex-direction: column;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+        }
+
+        .value {
+            font-size: 0.9rem;
+            color: #667eea;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .btn-play {
+            background: #667eea;
+        }
+
+        .btn-play:hover:not(:disabled) {
+            background: #5568d3;
+            transform: scale(1.05);
+        }
+
+        .btn-pause {
+            background: #f39c12;
+        }
+
+        .btn-pause:hover:not(:disabled) {
+            background: #d68910;
+            transform: scale(1.05);
+        }
+
+        .btn-stop {
+            background: #e74c3c;
+        }
+
+        .btn-stop:hover:not(:disabled) {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+
+        .btn-reverse {
+            background: #9b59b6;
+        }
+
+        .btn-reverse:hover:not(:disabled) {
+            background: #8e44ad;
+            transform: scale(1.05);
+        }
+
+        .btn-forward {
+            background: #27ae60;
+        }
+
+        .btn-forward:hover:not(:disabled) {
+            background: #229954;
+            transform: scale(1.05);
+        }
+
+        .btn-download {
+            background: #48bb78;
+        }
+
+        .btn-download:hover:not(:disabled) {
+            background: #38a169;
+            transform: scale(1.05);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .time-display {
+            background: #f7f7f7;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .info {
+            background: #f7f7f7;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+
+        .info h3 {
+            margin: 0 0 1rem 0;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .info ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .info li {
+            margin-bottom: 0.75rem;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .status {
+            padding: 1rem;
+            background: #e8f4f8;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .status.playing {
+            background: #d4edda;
+            border-left-color: #27ae60;
+        }
+
+        .status.paused {
+            background: #fff3cd;
+            border-left-color: #f39c12;
+        }
+
+        .status.stopped {
+            background: #f8d7da;
+            border-left-color: #e74c3c;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .button-group {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎙️ Free Voice Synthesis Studio</h1>
+            <p>Unlimited text • Multiple free voices • Customize pitch, rate, volume • Browser-based, no account needed</p>
+        </div>
+
+        <div class="card">
+            <!-- Status Display -->
+            <div class="status" id="statusDisplay">
+                Ready to speak
+            </div>
+
+            <!-- Text Input Section -->
+            <div class="section">
+                <label class="label">📝 Text to Synthesize</label>
+                <textarea
+                    id="textInput"
+                    placeholder="Enter unlimited text here... (Web Speech API is free for all text)"
+                ></textarea>
+                <p class="hint"><span id="charCount">0</span> characters</p>
+            </div>
+
+            <!-- Voice Selection -->
+            <div class="section">
+                <label class="label">🎤 Voice Selection</label>
+                <select id="voiceSelect">
+                    <option value="">Loading voices...</option>
+                </select>
+                <p class="hint">Total voices available: <span id="voiceCount">0</span></p>
+            </div>
+
+            <!-- Control Dials -->
+            <div class="controls-grid">
+                <div class="control">
+                    <label class="label">🎚️ Pitch</label>
+                    <input type="range" id="pitchSlider" min="0.5" max="2" step="0.1" value="1">
+                    <span class="value"><span id="pitchValue">1.0</span>x</span>
+                </div>
+
+                <div class="control">
+                    <label class="label">⏱️ Speed (Rate)</label>
+                    <input type="range" id="rateSlider" min="0.5" max="2" step="0.1" value="1">
+                    <span class="value"><span id="rateValue">1.0</span>x</span>
+                </div>
+
+                <div class="control">
+                    <label class="label">🔊 Volume</label>
+                    <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1">
+                    <span class="value"><span id="volumeValue">100</span>%</span>
+                </div>
+            </div>
+
+            <!-- Time Display -->
+            <div class="time-display">
+                Current Time: <span id="timeDisplay">00:00</span> / Total: <span id="totalTime">00:00</span>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="button-group">
+                <button class="btn-reverse" id="reverseBtn" title="Reverse playback">
+                    ⏮️ Reverse
+                </button>
+                <button class="btn-play" id="playBtn" title="Play text">
+                    ▶️ Play
+                </button>
+                <button class="btn-pause" id="pauseBtn" disabled title="Pause playback">
+                    ⏸️ Pause
+                </button>
+                <button class="btn-stop" id="stopBtn" disabled title="Stop playback">
+                    ⏹️ Stop
+                </button>
+                <button class="btn-forward" id="forwardBtn" title="Forward playback">
+                    ⏭️ Forward
+                </button>
+                <button class="btn-download" id="downloadBtn" title="Download audio">
+                    💾 Download
+                </button>
+            </div>
+
+            <!-- Info Section -->
+            <div class="info">
+                <h3>ℹ️ About This Tool</h3>
+                <ul>
+                    <li><strong>Free & Open Source:</strong> No signup, no API keys, runs entirely in your browser</li>
+                    <li><strong>Engine:</strong> Web Speech API (built into modern browsers)</li>
+                    <li><strong>Unlimited Text:</strong> Synthesize as much text as you want</li>
+                    <li><strong>Voice Support:</strong> All voices from your OS + browser</li>
+                    <li><strong>Customization:</strong> Pitch, rate, volume controls on every voice</li>
+                    <li><strong>Languages:</strong> English, Spanish, French, German, Italian, Japanese, Mandarin, Hindi, and more</li>
+                    <li><strong>Privacy:</strong> Text never leaves your computer</li>
+                </ul>
+            </div>
+
+            <div class="info">
+                <h3>🎮 Controls Guide</h3>
+                <ul>
+                    <li><strong>Play:</strong> Start speaking the text</li>
+                    <li><strong>Pause:</strong> Pause mid-speech (resume with Play)</li>
+                    <li><strong>Stop:</strong> Stop and clear the speech</li>
+                    <li><strong>Reverse:</strong> Play text in reverse order</li>
+                    <li><strong>Forward:</strong> Skip ahead in the text</li>
+                    <li><strong>Download:</strong> Save audio as MP3 (requires backend setup)</li>
+                    <li><strong>Pitch:</strong> Make voice higher (2x) or lower (0.5x)</li>
+                    <li><strong>Speed:</strong> Make speech faster (2x) or slower (0.5x)</li>
+                    <li><strong>Volume:</strong> Control audio loudness (0-100%)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Speech Synthesis API
+        const synth = window.speechSynthesis;
+        let utterance = null;
+        let voices = [];
+        let isPaused = false;
+        let currentText = '';
+        let isReversed = false;
+
+        // DOM Elements
+        const textInput = document.getElementById('textInput');
+        const charCount = document.getElementById('charCount');
+        const voiceSelect = document.getElementById('voiceSelect');
+        const voiceCount = document.getElementById('voiceCount');
+        const pitchSlider = document.getElementById('pitchSlider');
+        const pitchValue = document.getElementById('pitchValue');
+        const rateSlider = document.getElementById('rateSlider');
+        const rateValue = document.getElementById('rateValue');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volumeValue = document.getElementById('volumeValue');
+        const playBtn = document.getElementById('playBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const reverseBtn = document.getElementById('reverseBtn');
+        const forwardBtn = document.getElementById('forwardBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const statusDisplay = document.getElementById('statusDisplay');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const totalTime = document.getElementById('totalTime');
+
+        // Load voices
+        function loadVoices() {
+            voices = synth.getVoices();
+            voiceSelect.innerHTML = '';
+            
+            const grouped = {};
+            voices.forEach(voice => {
+                const lang = getLanguage(voice.name);
+                if (!grouped[lang]) grouped[lang] = [];
+                grouped[lang].push(voice);
+            });
+
+            Object.entries(grouped).sort().forEach(([lang, langVoices]) => {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = lang;
+                langVoices.forEach((voice, idx) => {
+                    const option = document.createElement('option');
+                    option.value = voice.name;
+                    option.textContent = voice.name + (voice.default ? ' (Default)' : '');
+                    optgroup.appendChild(option);
+                });
+                voiceSelect.appendChild(optgroup);
+            });
+
+            voiceCount.textContent = voices.length;
+        }
+
+        function getLanguage(voiceName) {
+            if (voiceName.includes('English')) return 'English';
+            if (voiceName.includes('Spanish')) return 'Español';
+            if (voiceName.includes('French')) return 'Français';
+            if (voiceName.includes('German')) return 'Deutsch';
+            if (voiceName.includes('Italian')) return 'Italiano';
+            if (voiceName.includes('Japanese')) return '日本語';
+            if (voiceName.includes('Mandarin') || voiceName.includes('Chinese')) return '中文';
+            if (voiceName.includes('Hindi')) return 'हिन्दी';
+            if (voiceName.includes('Arabic')) return 'العربية';
+            if (voiceName.includes('Russian')) return 'Русский';
+            if (voiceName.includes('Portuguese')) return 'Português';
+            if (voiceName.includes('Korean')) return '한국어';
+            return 'Other';
+        }
+
+        // Update sliders
+        pitchSlider.addEventListener('input', (e) => {
+            pitchValue.textContent = parseFloat(e.target.value).toFixed(1);
+        });
+
+        rateSlider.addEventListener('input', (e) => {
+            rateValue.textContent = parseFloat(e.target.value).toFixed(1);
+        });
+
+        volumeSlider.addEventListener('input', (e) => {
+            volumeValue.textContent = Math.round(parseFloat(e.target.value) * 100);
+        });
+
+        // Character count
+        textInput.addEventListener('input', (e) => {
+            charCount.textContent = e.target.value.length;
+        });
+
+        // Play button
+        playBtn.addEventListener('click', () => {
+            if (!textInput.value.trim()) {
+                alert('Please enter text to synthesize');
+                return;
+            }
+
+            synth.cancel();
+            currentText = isReversed ? reverseText(textInput.value) : textInput.value;
+
+            utterance = new SpeechSynthesisUtterance(currentText);
+            const selectedVoice = voices.find(v => v.name === voiceSelect.value);
+            if (selectedVoice) utterance.voice = selectedVoice;
+
+            utterance.pitch = parseFloat(pitchSlider.value);
+            utterance.rate = parseFloat(rateSlider.value);
+            utterance.volume = parseFloat(volumeSlider.value);
+
+            utterance.onstart = () => {
+                playBtn.disabled = true;
+                pauseBtn.disabled = false;
+                stopBtn.disabled = false;
+                reverseBtn.disabled = true;
+                forwardBtn.disabled = true;
+                statusDisplay.className = 'status playing';
+                statusDisplay.textContent = '▶️ Playing...';
+                isPaused = false;
+            };
+
+            utterance.onend = () => {
+                playBtn.disabled = false;
+                pauseBtn.disabled = true;
+                stopBtn.disabled = true;
+                reverseBtn.disabled = false;
+                forwardBtn.disabled = false;
+                statusDisplay.className = 'status';
+                statusDisplay.textContent = 'Finished speaking';
+            };
+
+            utterance.onerror = () => {
+                playBtn.disabled = false;
+                pauseBtn.disabled = true;
+                stopBtn.disabled = true;
+                reverseBtn.disabled = false;
+                forwardBtn.disabled = false;
+                statusDisplay.className = 'status stopped';
+                statusDisplay.textContent = '❌ Error occurred';
+            };
+
+            synth.speak(utterance);
+        });
+
+        // Pause button
+        pauseBtn.addEventListener('click', () => {
+            if (isPaused) {
+                synth.resume();
+                statusDisplay.className = 'status playing';
+                statusDisplay.textContent = '▶️ Resumed...';
+                isPaused = false;
+            } else {
+                synth.pause();
+                statusDisplay.className = 'status paused';
+                statusDisplay.textContent = '⏸️ Paused';
+                isPaused = true;
+            }
+        });
+
+        // Stop button
+        stopBtn.addEventListener('click', () => {
+            synth.cancel();
+            playBtn.disabled = false;
+            pauseBtn.disabled = true;
+            stopBtn.disabled = true;
+            reverseBtn.disabled = false;
+            forwardBtn.disabled = false;
+            statusDisplay.className = 'status stopped';
+            statusDisplay.textContent = '⏹️ Stopped';
+            isPaused = false;
+        });
+
+        // Reverse button
+        reverseBtn.addEventListener('click', () => {
+            isReversed = !isReversed;
+            reverseBtn.style.opacity = isReversed ? '1' : '0.7';
+            statusDisplay.textContent = isReversed ? '🔄 Reverse mode ON' : '🔄 Reverse mode OFF';
+        });
+
+        // Forward button (skip ahead)
+        forwardBtn.addEventListener('click', () => {
+            synth.cancel();
+            const text = textInput.value;
+            const words = text.split(' ');
+            const currentLength = currentText.split(' ').length;
+            const newStart = Math.min(currentLength + 5, words.length);
+            const newText = words.slice(newStart).join(' ');
+            
+            if (newText.trim()) {
+                currentText = newText;
+                utterance = new SpeechSynthesisUtterance(newText);
+                const selectedVoice = voices.find(v => v.name === voiceSelect.value);
+                if (selectedVoice) utterance.voice = selectedVoice;
+                utterance.pitch = parseFloat(pitchSlider.value);
+                utterance.rate = parseFloat(rateSlider.value);
+                utterance.volume = parseFloat(volumeSlider.value);
+                synth.speak(utterance);
+            } else {
+                statusDisplay.textContent = '📍 Already at the end';
+            }
+        });
+
+        // Download button
+        downloadBtn.addEventListener('click', () => {
+            alert('Download feature requires a backend service or browser with Web Audio API recording capability.\n\nSee README for setup instructions with:\n- ElevenLabs API\n- Google Cloud TTS\n- Azure Speech Services');
+        });
+
+        // Initialize
+        if (synth.getVoices().length > 0) {
+            loadVoices();
+        } else {
+            synth.onvoiceschanged = loadVoices;
+        }
+
+        // Update time display
+        setInterval(() => {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            timeDisplay.textContent = `${hours}:${minutes}`;
+        }, 1000);
+
+        // Reverse text function
+        function reverseText(text) {
+            return text.split('').reverse().join('');
+        }
+    </script>
+</body>
+</html>
