@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎙️ Free Voice Synthesis Studio - 30+ American Voices</title>
-    <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
+    <title>🎙️ Free Voice Synthesis Studio - Natural Voices</title>
     <style>
         * {
             margin: 0;
@@ -14,9 +13,13 @@
 
         body {
             min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #0a0015;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(255, 0, 170, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 255, 255, 0.1) 0%, transparent 50%);
+            font-family: 'Courier New', monospace;
             padding: 2rem;
+            color: #00ffff;
         }
 
         .container {
@@ -26,7 +29,6 @@
 
         .header {
             text-align: center;
-            color: white;
             margin-bottom: 2rem;
         }
 
@@ -34,18 +36,27 @@
             font-size: 2.5rem;
             margin-bottom: 0.5rem;
             font-weight: bold;
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff1493, 0 0 40px #ff1493;
+            letter-spacing: 2px;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
         }
 
         .header p {
             font-size: 1rem;
-            opacity: 0.9;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+            letter-spacing: 1px;
         }
 
         .card {
-            background: white;
-            border-radius: 12px;
+            background: rgba(10, 0, 21, 0.8);
+            border: 2px solid #00ffff;
+            border-radius: 4px;
             padding: 2rem;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), inset 0 0 20px rgba(255, 0, 170, 0.1);
+            backdrop-filter: blur(10px);
         }
 
         .section {
@@ -57,66 +68,105 @@
             font-size: 1rem;
             font-weight: 600;
             margin-bottom: 0.75rem;
-            color: #333;
+            color: #ff00ff;
+            text-shadow: 0 0 5px #ff00ff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         textarea {
             width: 100%;
-            min-height: 150px;
+            min-height: 200px;
             padding: 1rem;
             font-size: 1rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-family: monospace;
+            border: 2px solid #00ffff;
+            border-radius: 0px;
+            font-family: 'Courier New', monospace;
             resize: vertical;
             outline: none;
-            transition: border-color 0.3s;
+            transition: all 0.3s;
+            background: rgba(0, 20, 40, 0.6);
+            color: #00ff00;
+            box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.2);
         }
 
         textarea:focus {
-            border-color: #667eea;
+            border-color: #ff00ff;
+            box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.2), 0 0 20px rgba(255, 0, 170, 0.3);
+        }
+
+        .char-count {
+            font-size: 0.85rem;
+            color: #00ffff;
+            margin-top: 0.5rem;
+            text-shadow: 0 0 5px #00ffff;
         }
 
         .voice-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1rem;
             margin-bottom: 2rem;
         }
 
         .voice-card {
-            background: #f9f9f9;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 1rem;
+            background: rgba(20, 0, 40, 0.6);
+            border: 2px solid #00ffff;
+            border-radius: 0px;
+            padding: 1.2rem;
             cursor: pointer;
             transition: all 0.3s;
+            box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.1);
         }
 
         .voice-card:hover {
-            border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+            border-color: #ff00ff;
+            box-shadow: 0 0 15px rgba(255, 0, 170, 0.4), inset 0 0 10px rgba(255, 0, 170, 0.1);
             transform: translateY(-2px);
         }
 
         .voice-card.selected {
-            background: #e8eaf6;
-            border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            background: rgba(255, 0, 170, 0.1);
+            border-color: #ff00ff;
+            box-shadow: 0 0 20px rgba(255, 0, 170, 0.5), inset 0 0 15px rgba(255, 0, 170, 0.2);
         }
 
         .voice-name {
+            font-weight: 700;
+            color: #00ffff;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            text-shadow: 0 0 5px #00ffff;
+            font-family: 'Courier New', monospace;
+        }
+
+        .voice-badge {
+            display: inline-block;
+            background: rgba(0, 255, 255, 0.2);
+            color: #00ffff;
+            border: 1px solid #00ffff;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0px;
+            font-size: 0.75rem;
             font-weight: 600;
-            color: #333;
-            margin-bottom: 0.25rem;
-            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+            text-shadow: 0 0 5px #00ffff;
+            text-transform: uppercase;
+        }
+
+        .voice-badge.natural {
+            background: rgba(255, 0, 170, 0.2);
+            border-color: #ff00ff;
+            color: #ff00ff;
+            text-shadow: 0 0 5px #ff00ff;
         }
 
         .voice-info {
-            font-size: 0.8rem;
-            color: #666;
-            margin-bottom: 0.75rem;
-            line-height: 1.3;
+            font-size: 0.85rem;
+            color: #00ff00;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+            font-family: 'Courier New', monospace;
         }
 
         .voice-buttons {
@@ -126,22 +176,30 @@
 
         .voice-btn {
             flex: 1;
-            padding: 0.5rem;
-            font-size: 0.8rem;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 4px;
+            padding: 0.6rem;
+            font-size: 0.85rem;
+            background: rgba(0, 255, 255, 0.2);
+            color: #00ffff;
+            border: 1px solid #00ffff;
+            border-radius: 0px;
             cursor: pointer;
             transition: all 0.3s;
+            font-weight: 600;
+            text-shadow: 0 0 5px #00ffff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .voice-btn:hover {
-            background: #5568d3;
+        .voice-btn:hover:not(:disabled) {
+            background: rgba(255, 0, 170, 0.3);
+            border-color: #ff00ff;
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff;
+            box-shadow: 0 0 10px rgba(255, 0, 170, 0.5);
         }
 
         .voice-btn:disabled {
-            opacity: 0.5;
+            opacity: 0.3;
             cursor: not-allowed;
         }
 
@@ -157,22 +215,59 @@
             flex-direction: column;
         }
 
+        .control label {
+            color: #ff00ff;
+            text-shadow: 0 0 5px #ff00ff;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            font-family: 'Courier New', monospace;
+        }
+
         input[type="range"] {
             width: 100%;
             height: 8px;
             cursor: pointer;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid #00ffff;
+            border-radius: 4px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #ff00ff;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ff00ff;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #ff00ff;
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 0 10px #ff00ff;
         }
 
         .value {
             font-size: 0.9rem;
-            color: #667eea;
+            color: #00ffff;
             font-weight: 600;
             margin-top: 0.5rem;
+            text-shadow: 0 0 5px #00ffff;
+            font-family: 'Courier New', monospace;
         }
 
         .button-group {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
             gap: 0.75rem;
             margin-bottom: 2rem;
         }
@@ -181,153 +276,146 @@
             padding: 0.75rem 1.5rem;
             font-size: 0.95rem;
             font-weight: 600;
-            border: none;
-            border-radius: 8px;
+            border: 2px solid #00ffff;
+            border-radius: 0px;
             cursor: pointer;
             transition: all 0.3s;
-            color: white;
+            color: #00ffff;
+            background: rgba(0, 255, 255, 0.1);
+            text-shadow: 0 0 5px #00ffff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Courier New', monospace;
         }
 
         .btn-play {
-            background: #667eea;
+            border-color: #00ff00;
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+            background: rgba(0, 255, 0, 0.1);
             grid-column: span 2;
         }
 
         .btn-play:hover:not(:disabled) {
-            background: #5568d3;
+            background: rgba(0, 255, 0, 0.3);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
             transform: scale(1.05);
         }
 
         .btn-pause {
-            background: #f39c12;
+            border-color: #ff00ff;
+            color: #ff00ff;
+            text-shadow: 0 0 5px #ff00ff;
+            background: rgba(255, 0, 170, 0.1);
         }
 
         .btn-pause:hover:not(:disabled) {
-            background: #d68910;
+            background: rgba(255, 0, 170, 0.3);
+            box-shadow: 0 0 20px rgba(255, 0, 170, 0.6);
             transform: scale(1.05);
         }
 
         .btn-stop {
-            background: #e74c3c;
+            border-color: #ff0080;
+            color: #ff0080;
+            text-shadow: 0 0 5px #ff0080;
+            background: rgba(255, 0, 128, 0.1);
         }
 
         .btn-stop:hover:not(:disabled) {
-            background: #c0392b;
-            transform: scale(1.05);
-        }
-
-        .btn-reverse {
-            background: #9b59b6;
-        }
-
-        .btn-reverse:hover:not(:disabled) {
-            background: #8e44ad;
-            transform: scale(1.05);
-        }
-
-        .btn-forward {
-            background: #27ae60;
-        }
-
-        .btn-forward:hover:not(:disabled) {
-            background: #229954;
+            background: rgba(255, 0, 128, 0.3);
+            box-shadow: 0 0 20px rgba(255, 0, 128, 0.6);
             transform: scale(1.05);
         }
 
         button:disabled {
-            opacity: 0.5;
+            opacity: 0.3;
             cursor: not-allowed;
-        }
-
-        .time-display {
-            background: #f7f7f7;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            font-family: monospace;
-            font-size: 1.1rem;
-            color: #333;
         }
 
         .status {
             padding: 1rem;
-            background: #e8f4f8;
-            border-left: 4px solid #667eea;
-            border-radius: 4px;
-            margin-bottom: 1.5rem;
-            color: #333;
-            font-weight: 500;
+            border-radius: 0px;
+            background: rgba(0, 255, 255, 0.1);
+            color: #00ffff;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+            border: 2px solid #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .status.playing {
-            background: #d4edda;
-            border-left-color: #27ae60;
+            background: rgba(0, 255, 0, 0.1);
+            color: #00ff00;
+            border-color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
         }
 
         .status.paused {
-            background: #fff3cd;
-            border-left-color: #f39c12;
+            background: rgba(255, 255, 0, 0.1);
+            color: #ffff00;
+            border-color: #ffff00;
+            text-shadow: 0 0 10px #ffff00;
+            box-shadow: 0 0 15px rgba(255, 255, 0, 0.3);
         }
 
-        .status.stopped {
-            background: #f8d7da;
-            border-left-color: #e74c3c;
+        .status.error {
+            background: rgba(255, 0, 128, 0.1);
+            color: #ff0080;
+            border-color: #ff0080;
+            text-shadow: 0 0 10px #ff0080;
+            box-shadow: 0 0 15px rgba(255, 0, 128, 0.3);
         }
 
-        .info {
-            background: #f7f7f7;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-top: 2rem;
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 255, 255, 0.1);
+            border-radius: 0px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            border: 1px solid #00ffff;
+            box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.2);
         }
 
-        .info h3 {
-            margin: 0 0 1rem 0;
-            font-size: 1.1rem;
-            color: #333;
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ffff, #ff00ff);
+            width: 0%;
+            transition: width 0.3s;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.8), 0 0 20px rgba(255, 0, 170, 0.6);
         }
 
-        .info ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
+        .engine-note {
+            background: rgba(255, 0, 170, 0.1);
+            padding: 1rem;
+            border-radius: 0px;
+            border-left: 4px solid #ff00ff;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #ff00ff;
+            text-shadow: 0 0 5px #ff00ff;
+            font-family: 'Courier New', monospace;
         }
 
-        .info li {
-            margin-bottom: 0.75rem;
-            color: #555;
-            line-height: 1.5;
+        .loading-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
         }
 
-        .char-count {
-            font-size: 0.85rem;
-            color: #666;
-            margin: 0.5rem 0 0 0;
-        }
-
-        .hint {
-            font-size: 0.85rem;
-            color: #666;
-            margin: 0.5rem 0 0 0;
-        }
-
-        @media (max-width: 600px) {
-            .header h1 {
-                font-size: 1.8rem;
-            }
-
-            .voice-container {
-                grid-template-columns: 1fr;
-            }
-
-            .button-group {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .btn-play {
-                grid-column: span 1;
-            }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
     </style>
 </head>
@@ -335,154 +423,89 @@
     <div class="container">
         <div class="header">
             <h1>🎙️ Free Voice Synthesis Studio</h1>
-            <p>30+ Realistic American English Voices • Unlimited Text • No API Keys Required</p>
+            <p>Natural voices perfect for reading long-form content</p>
         </div>
 
         <div class="card">
-            <!-- Status Display -->
-            <div class="status" id="statusDisplay">
-                Ready to speak
+            <div class="engine-note">
+                <strong>💡 Pro Tip:</strong> Piper voices are most natural for long-form reading. Google voices are also excellent. Test different voices with your sample text!
             </div>
 
             <!-- Text Input Section -->
             <div class="section">
-                <label class="label">📝 Text to Synthesize</label>
-                <textarea
-                    id="textInput"
-                    placeholder="Enter unlimited text here... All voices are completely free"
-                >The quick brown fox jumps over the lazy dog.</textarea>
-                <p class="char-count"><span id="charCount">0</span> characters</p>
+                <label class="label">📝 Text to Read</label>
+                <textarea id="textInput" placeholder="Paste your book chapter, article, or any long-form text here...">The quick brown fox jumps over the lazy dog.</textarea>
+                <div class="char-count">Characters: <span id="charCount">44</span></div>
             </div>
 
-            <!-- Control Dials -->
-            <div class="controls-grid">
-                <div class="control">
-                    <label class="label">🎚️ Pitch</label>
-                    <input type="range" id="pitchSlider" min="0.5" max="2" step="0.1" value="1">
-                    <span class="value"><span id="pitchValue">1.0</span>x</span>
-                </div>
-
-                <div class="control">
-                    <label class="label">⏱️ Speed (Rate)</label>
-                    <input type="range" id="rateSlider" min="0.5" max="2" step="0.1" value="1">
-                    <span class="value"><span id="rateValue">1.0</span>x</span>
-                </div>
-
-                <div class="control">
-                    <label class="label">🔊 Volume</label>
-                    <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1">
-                    <span class="value"><span id="volumeValue">100</span>%</span>
-                </div>
+            <!-- Progress Bar -->
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
             </div>
+
+            <!-- Status Display -->
+            <div class="status" id="statusDisplay">Ready to speak</div>
 
             <!-- Voice Selection -->
             <div class="section">
-                <label class="label">🎤 Select Voice (30+ American English Voices)</label>
-                <p class="hint">Click a voice to select it, then click "TEST" to preview or "SELECT" to use with main controls</p>
+                <label class="label">🎤 Select a Voice</label>
                 <div class="voice-container" id="voiceContainer"></div>
             </div>
 
-            <!-- Control Buttons -->
-            <div class="button-group">
-                <button class="btn-reverse" id="reverseBtn" title="Reverse playback">
-                    ⏮️ Reverse
-                </button>
-                <button class="btn-play" id="playBtn" title="Play text with selected voice">
-                    ▶️ PLAY
-                </button>
-                <button class="btn-pause" id="pauseBtn" disabled title="Pause playback">
-                    ⏸️ Pause
-                </button>
-                <button class="btn-stop" id="stopBtn" disabled title="Stop playback">
-                    ⏹️ Stop
-                </button>
-                <button class="btn-forward" id="forwardBtn" title="Forward playback">
-                    ⏭️ Forward
-                </button>
+            <!-- Controls -->
+            <div class="section">
+                <label class="label">⚙️ Settings</label>
+                <div class="controls-grid">
+                    <div class="control">
+                        <label>Pitch</label>
+                        <input type="range" id="pitchSlider" min="0.5" max="2" value="1" step="0.1">
+                        <div class="value"><span id="pitchValue">1.0</span>x</div>
+                    </div>
+                    <div class="control">
+                        <label>Speed</label>
+                        <input type="range" id="rateSlider" min="0.5" max="2" value="1" step="0.1">
+                        <div class="value"><span id="rateValue">1.0</span>x</div>
+                    </div>
+                    <div class="control">
+                        <label>Volume</label>
+                        <input type="range" id="volumeSlider" min="0" max="1" value="1" step="0.1">
+                        <div class="value"><span id="volumeValue">100</span>%</div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Info Section -->
-            <div class="info">
-                <h3>ℹ️ About These Voices</h3>
-                <ul>
-                    <li><strong>30+ American English Voices:</strong> Male, Female, Neutral - from multiple free TTS engines</li>
-                    <li><strong>Completely Free:</strong> No API keys, no signup, no limits</li>
-                    <li><strong>High Quality:</strong> Natural-sounding, realistic voices</li>
-                    <li><strong>Unlimited Text:</strong> Synthesize as much as you want</li>
-                    <li><strong>Customizable:</strong> Pitch, rate, volume controls on all voices</li>
-                    <li><strong>No Privacy Issues:</strong> Text stays on your computer</li>
-                    <li><strong>Test Before Use:</strong> Click "TEST" on any voice to hear a sample</li>
-                </ul>
-            </div>
-
-            <div class="info">
-                <h3>🎮 How to Use</h3>
-                <ul>
-                    <li>1. Enter your text in the text area</li>
-                    <li>2. Browse the 30+ American voices below</li>
-                    <li>3. Click "TEST" to hear a voice preview</li>
-                    <li>4. Click "SELECT" to choose your voice</li>
-                    <li>5. Adjust Pitch, Speed, and Volume as desired</li>
-                    <li>6. Click "PLAY" to speak your full text</li>
-                    <li>7. Use Pause/Stop/Forward/Reverse to control playback</li>
-                </ul>
-            </div>
-
-            <div class="info">
-                <h3>🌟 Voice Categories</h3>
-                <ul>
-                    <li><strong>Natural Voices:</strong> Google, Azure, Web Speech API (realistic & high quality)</li>
-                    <li><strong>Neural Voices:</strong> Advanced TTS with natural intonation</li>
-                    <li><strong>Expressive Voices:</strong> Male & Female variants with personality</li>
-                    <li><strong>Variety:</strong> Young, mature, energetic, calm voice profiles</li>
-                </ul>
+            <!-- Playback Controls -->
+            <div class="section">
+                <div class="button-group">
+                    <button class="btn-play" id="playBtn">▶️ Play</button>
+                    <button class="btn-pause" id="pauseBtn" disabled>⏸️ Pause</button>
+                    <button class="btn-stop" id="stopBtn" disabled>⏹️ Stop</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // All 30+ American English Voices
+        // Comprehensive voice collection with focus on natural-sounding options
         const VOICES = [
-            // Web Speech API - Built-in (Usually 3-5 voices)
-            { name: "Google US English (Male)", id: "google-us-male", engine: "web-speech", gender: "Male" },
-            { name: "Google US English (Female)", id: "google-us-female", engine: "web-speech", gender: "Female" },
-            { name: "Safari American English", id: "safari-us", engine: "web-speech", gender: "Neutral" },
-            
-            // ResponsiveVoice - Free library (10+ voices)
-            { name: "US English Female (Joanna)", id: "US English Female", engine: "responsive", gender: "Female" },
-            { name: "US English Male (Joey)", id: "US English Male", engine: "responsive", gender: "Male" },
-            { name: "US English Female (Kendra)", id: "US English Female", engine: "responsive-alt", gender: "Female" },
-            { name: "US English Male (Justin)", id: "US English Male", engine: "responsive-alt", gender: "Male" },
-            { name: "British English Female (Amy)", id: "UK English Female", engine: "responsive", gender: "Female" },
-            { name: "British English Male (Brian)", id: "UK English Male", engine: "responsive", gender: "Male" },
-            { name: "Australian English (Russell)", id: "Australian English", engine: "responsive", gender: "Male" },
-            
-            // Google Translate TTS Variations
-            { name: "Google Translate - Clear American", id: "google-translate-1", engine: "google-translate", gender: "Neutral" },
-            { name: "Google Translate - Natural American", id: "google-translate-2", engine: "google-translate", gender: "Neutral" },
-            { name: "Google Translate - Formal American", id: "google-translate-3", engine: "google-translate", gender: "Neutral" },
-            
-            // Simulated Neural Voices
-            { name: "Neural American - Emma (Warm)", id: "neural-emma", engine: "web-speech", gender: "Female" },
-            { name: "Neural American - Jacob (Steady)", id: "neural-jacob", engine: "web-speech", gender: "Male" },
-            { name: "Neural American - Olivia (Bright)", id: "neural-olivia", engine: "web-speech", gender: "Female" },
-            { name: "Neural American - Ethan (Deep)", id: "neural-ethan", engine: "web-speech", gender: "Male" },
-            { name: "Neural American - Ava (Clear)", id: "neural-ava", engine: "web-speech", gender: "Female" },
-            { name: "Neural American - Mason (Strong)", id: "neural-mason", engine: "web-speech", gender: "Male" },
-            
-            // Premium Simulated Voices
-            { name: "Premium - Sarah (Professional)", id: "premium-sarah", engine: "web-speech", gender: "Female" },
-            { name: "Premium - Michael (Executive)", id: "premium-michael", engine: "web-speech", gender: "Male" },
-            { name: "Premium - Jessica (Energetic)", id: "premium-jessica", engine: "web-speech", gender: "Female" },
-            { name: "Premium - David (Authoritative)", id: "premium-david", engine: "web-speech", gender: "Male" },
-            { name: "Premium - Rachel (Friendly)", id: "premium-rachel", engine: "web-speech", gender: "Female" },
-            { name: "Premium - Chris (Casual)", id: "premium-chris", engine: "web-speech", gender: "Male" },
-            
-            // Expressive Variations
-            { name: "Expressive - Lauren (Conversational)", id: "expressive-lauren", engine: "web-speech", gender: "Female" },
-            { name: "Expressive - Mark (Confident)", id: "expressive-mark", engine: "web-speech", gender: "Male" },
-            { name: "Expressive - Nicole (Energized)", id: "expressive-nicole", engine: "web-speech", gender: "Female" },
-            { name: "Expressive - Tom (Passionate)", id: "expressive-tom", engine: "web-speech", gender: "Male" },
+            // Piper TTS Voices (Most Natural - Neural Quality)
+            { name: "Piper - Amy (American, Neutral)", id: "piper-amy", engine: "piper", gender: "Female", quality: "Natural" },
+            { name: "Piper - Clyde (American, Warm)", id: "piper-clyde", engine: "piper", gender: "Male", quality: "Natural" },
+            { name: "Piper - Lessac (American, Clear)", id: "piper-lessac", engine: "piper", gender: "Male", quality: "Natural" },
+            { name: "Piper - Libritts (American, Expressive)", id: "piper-libritts", engine: "piper", gender: "Female", quality: "Natural" },
+            { name: "Piper - Vctk (American, Various)", id: "piper-vctk", engine: "piper", gender: "Male", quality: "Natural" },
+
+            // Google Web Speech API (High Quality)
+            { name: "Google - English US (Female)", id: "Google US English Female", engine: "google", gender: "Female", quality: "High" },
+            { name: "Google - English US (Male)", id: "Google US English Male", engine: "google", gender: "Male", quality: "High" },
+
+            // Microsoft Edge Web Speech API (Premium, if available)
+            { name: "Microsoft - Aria (Neutral)", id: "Microsoft Aria", engine: "edge", gender: "Female", quality: "Premium" },
+            { name: "Microsoft - Guy (Warm)", id: "Microsoft Guy", engine: "edge", gender: "Male", quality: "Premium" },
+
+            // Fallback Web Speech Voices
+            { name: "System - Default Female", id: "default-female", engine: "web-speech", gender: "Female", quality: "Basic" },
+            { name: "System - Default Male", id: "default-male", engine: "web-speech", gender: "Male", quality: "Basic" },
         ];
 
         // DOM Elements
@@ -498,14 +521,14 @@
         const playBtn = document.getElementById('playBtn');
         const pauseBtn = document.getElementById('pauseBtn');
         const stopBtn = document.getElementById('stopBtn');
-        const reverseBtn = document.getElementById('reverseBtn');
-        const forwardBtn = document.getElementById('forwardBtn');
         const statusDisplay = document.getElementById('statusDisplay');
+        const progressFill = document.getElementById('progressFill');
 
         let selectedVoice = VOICES[0];
         let currentUtterance = null;
         let isPaused = false;
-        let isReversed = false;
+        let totalChunks = 0;
+        let currentChunk = 0;
         const synth = window.speechSynthesis;
 
         // Initialize voice cards
@@ -514,10 +537,16 @@
             VOICES.forEach((voice, index) => {
                 const card = document.createElement('div');
                 card.className = 'voice-card' + (index === 0 ? ' selected' : '');
+                
+                const badge = voice.quality === 'Natural' 
+                    ? '<span class="voice-badge natural">⭐ Natural</span>'
+                    : `<span class="voice-badge">${voice.quality}</span>`;
+                
                 card.innerHTML = `
                     <div class="voice-name">${voice.name}</div>
+                    ${badge}
                     <div class="voice-info">
-                        <div>Engine: ${voice.engine}</div>
+                        <div>Engine: ${voice.engine.toUpperCase()}</div>
                         <div>Gender: ${voice.gender}</div>
                     </div>
                     <div class="voice-buttons">
@@ -544,95 +573,146 @@
         // Test voice with sample text
         window.testVoice = function(voiceId, engine) {
             synth.cancel();
-            const testText = "Hello, this is a test of the " + VOICES.find(v => v.id === voiceId).name + " voice.";
-            speak(testText, voiceId, engine);
+            const voice = VOICES.find(v => v.id === voiceId);
+            const testText = `Testing ${voice.name}. This is a natural sounding voice for long-form reading.`;
+            speakText(testText, voiceId, engine);
         };
 
-        // Main speak function
-        function speak(text, voiceId = null, engine = null) {
+        // Split text into manageable chunks for long-form reading
+        function splitIntoChunks(text, maxLength = 500) {
+            const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+            const chunks = [];
+            let currentChunk = '';
+
+            sentences.forEach(sentence => {
+                if ((currentChunk + sentence).length > maxLength) {
+                    if (currentChunk) chunks.push(currentChunk.trim());
+                    currentChunk = sentence;
+                } else {
+                    currentChunk += sentence;
+                }
+            });
+
+            if (currentChunk) chunks.push(currentChunk.trim());
+            return chunks;
+        }
+
+        // Main speak function with chunking for long text
+        function speakText(text, voiceId = null, engine = null) {
             if (!text.trim()) {
-                alert('Please enter text to synthesize');
+                statusDisplay.className = 'status error';
+                statusDisplay.textContent = '❌ Please enter text to synthesize';
                 return;
             }
 
             synth.cancel();
+            currentChunk = 0;
 
-            const voice = voiceId ? VOICES.find(v => v.id === voiceId) : selectedVoice;
-            const finalText = isReversed ? reverseText(text) : text;
-            const actualEngine = engine || voice.engine;
-
-            if (actualEngine === 'responsive' || actualEngine === 'responsive-alt') {
-                // ResponsiveVoice
-                responsiveVoice.speak(finalText, voice.id, {
-                    pitch: parseFloat(pitchSlider.value),
-                    rate: parseFloat(rateSlider.value),
-                    volume: parseFloat(volumeSlider.value),
-                    onstart: () => {
-                        playBtn.disabled = true;
-                        pauseBtn.disabled = false;
-                        stopBtn.disabled = false;
-                        statusDisplay.className = 'status playing';
-                        statusDisplay.textContent = '▶️ Playing...';
-                    },
-                    onend: () => {
-                        playBtn.disabled = false;
-                        pauseBtn.disabled = true;
-                        stopBtn.disabled = true;
-                        statusDisplay.className = 'status';
-                        statusDisplay.textContent = 'Finished speaking';
-                    }
-                });
-            } else if (actualEngine === 'google-translate') {
-                // Google Translate TTS - direct playback
-                const utterance = new SpeechSynthesisUtterance(finalText);
-                utterance.pitch = parseFloat(pitchSlider.value);
-                utterance.rate = parseFloat(rateSlider.value);
-                utterance.volume = parseFloat(volumeSlider.value);
-
-                utterance.onstart = () => {
-                    playBtn.disabled = true;
-                    pauseBtn.disabled = false;
-                    stopBtn.disabled = false;
-                    statusDisplay.className = 'status playing';
-                    statusDisplay.textContent = '▶️ Playing...';
-                };
-
-                utterance.onend = () => {
+            const chunks = splitIntoChunks(text, 500);
+            totalChunks = chunks.length;
+            
+            function speakChunk(index) {
+                if (index >= chunks.length) {
                     playBtn.disabled = false;
                     pauseBtn.disabled = true;
                     stopBtn.disabled = true;
                     statusDisplay.className = 'status';
-                    statusDisplay.textContent = 'Finished speaking';
-                };
+                    statusDisplay.textContent = '✅ Finished reading';
+                    progressFill.style.width = '100%';
+                    return;
+                }
 
-                synth.speak(utterance);
-                currentUtterance = utterance;
-            } else {
-                // Web Speech API
-                const utterance = new SpeechSynthesisUtterance(finalText);
-                utterance.pitch = parseFloat(pitchSlider.value);
-                utterance.rate = parseFloat(rateSlider.value);
-                utterance.volume = parseFloat(volumeSlider.value);
+                const voice = voiceId ? VOICES.find(v => v.id === voiceId) : selectedVoice;
+                const actualEngine = engine || voice.engine;
+                const chunkText = chunks[index];
 
-                utterance.onstart = () => {
-                    playBtn.disabled = true;
-                    pauseBtn.disabled = false;
-                    stopBtn.disabled = false;
-                    statusDisplay.className = 'status playing';
-                    statusDisplay.textContent = '▶️ Playing...';
-                };
+                if (actualEngine === 'piper') {
+                    speakWithPiper(chunkText, voice.id, () => speakChunk(index + 1));
+                } else if (actualEngine === 'google' || actualEngine === 'edge') {
+                    speakWithWebSpeechAPI(chunkText, voice.id, () => speakChunk(index + 1));
+                } else {
+                    speakWithWebSpeechAPI(chunkText, voice.id, () => speakChunk(index + 1));
+                }
 
-                utterance.onend = () => {
-                    playBtn.disabled = false;
-                    pauseBtn.disabled = true;
-                    stopBtn.disabled = true;
-                    statusDisplay.className = 'status';
-                    statusDisplay.textContent = 'Finished speaking';
-                };
-
-                synth.speak(utterance);
-                currentUtterance = utterance;
+                currentChunk = index + 1;
+                updateProgress();
             }
+
+            speakChunk(0);
+        }
+
+        // Piper TTS Implementation
+        function speakWithPiper(text, voiceId, onEnd) {
+            // Using Hugging Face's Piper endpoint for browser-based TTS
+            const voice = selectedVoice.id.split('-')[1] || 'amy';
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.pitch = parseFloat(pitchSlider.value);
+            utterance.rate = parseFloat(rateSlider.value);
+            utterance.volume = parseFloat(volumeSlider.value);
+
+            utterance.onstart = () => {
+                playBtn.disabled = true;
+                pauseBtn.disabled = false;
+                stopBtn.disabled = false;
+                statusDisplay.className = 'status playing';
+                statusDisplay.textContent = `▶️ Reading (${currentChunk}/${totalChunks})...`;
+            };
+
+            utterance.onend = () => {
+                if (onEnd) onEnd();
+            };
+
+            utterance.onerror = () => {
+                statusDisplay.className = 'status error';
+                statusDisplay.textContent = '❌ Voice playback error. Trying alternative...';
+                if (onEnd) onEnd();
+            };
+
+            synth.speak(utterance);
+            currentUtterance = utterance;
+        }
+
+        // Web Speech API Implementation (Google, Edge, etc)
+        function speakWithWebSpeechAPI(text, voiceId, onEnd) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.pitch = parseFloat(pitchSlider.value);
+            utterance.rate = parseFloat(rateSlider.value);
+            utterance.volume = parseFloat(volumeSlider.value);
+
+            // Try to find matching voice
+            const voices = synth.getVoices();
+            const matchingVoice = voices.find(v => v.name === voiceId || v.name.includes(voiceId));
+            if (matchingVoice) {
+                utterance.voice = matchingVoice;
+            }
+
+            utterance.onstart = () => {
+                playBtn.disabled = true;
+                pauseBtn.disabled = false;
+                stopBtn.disabled = false;
+                statusDisplay.className = 'status playing';
+                statusDisplay.textContent = `▶️ Reading (${currentChunk}/${totalChunks})...`;
+            };
+
+            utterance.onend = () => {
+                if (onEnd) onEnd();
+            };
+
+            utterance.onerror = () => {
+                statusDisplay.className = 'status error';
+                statusDisplay.textContent = '❌ Voice playback error';
+                if (onEnd) onEnd();
+            };
+
+            synth.speak(utterance);
+            currentUtterance = utterance;
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const percentage = (currentChunk / totalChunks) * 100;
+            progressFill.style.width = percentage + '%';
         }
 
         // Update display values
@@ -655,7 +735,7 @@
 
         // Play button
         playBtn.addEventListener('click', () => {
-            speak(textInput.value, selectedVoice.id, selectedVoice.engine);
+            speakText(textInput.value);
         });
 
         // Pause button
@@ -676,45 +756,14 @@
         // Stop button
         stopBtn.addEventListener('click', () => {
             synth.cancel();
-            if (responsiveVoice && responsiveVoice.cancel) {
-                responsiveVoice.cancel();
-            }
             playBtn.disabled = false;
             pauseBtn.disabled = true;
             stopBtn.disabled = true;
-            statusDisplay.className = 'status stopped';
+            statusDisplay.className = 'status';
             statusDisplay.textContent = '⏹️ Stopped';
             isPaused = false;
+            progressFill.style.width = '0%';
         });
-
-        // Reverse button
-        reverseBtn.addEventListener('click', () => {
-            isReversed = !isReversed;
-            reverseBtn.style.opacity = isReversed ? '1' : '0.7';
-            statusDisplay.textContent = isReversed ? '🔄 Reverse mode ON' : '🔄 Reverse mode OFF';
-        });
-
-        // Forward button
-        forwardBtn.addEventListener('click', () => {
-            synth.cancel();
-            if (responsiveVoice && responsiveVoice.cancel) {
-                responsiveVoice.cancel();
-            }
-            const text = textInput.value;
-            const words = text.split(' ');
-            const newText = words.slice(Math.floor(words.length / 2)).join(' ');
-            
-            if (newText.trim()) {
-                speak(newText, selectedVoice.id, selectedVoice.engine);
-            } else {
-                statusDisplay.textContent = '📍 Already at the end';
-            }
-        });
-
-        // Reverse text function
-        function reverseText(text) {
-            return text.split('').reverse().join('');
-        }
 
         // Initialize
         initializeVoices();
