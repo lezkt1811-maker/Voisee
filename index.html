@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎙️ Free Voice Synthesis Studio - Natural Voices</title>
+    <title>🎙️ Free Voice Synthesis Studio - Piper TTS</title>
     <style>
         * {
             margin: 0;
@@ -39,7 +39,6 @@
             color: #ff00ff;
             text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff1493, 0 0 40px #ff1493;
             letter-spacing: 2px;
-            font-family: 'Courier New', monospace;
             text-transform: uppercase;
         }
 
@@ -104,7 +103,7 @@
 
         .voice-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1rem;
             margin-bottom: 2rem;
         }
@@ -137,7 +136,6 @@
             margin-bottom: 0.5rem;
             font-size: 1rem;
             text-shadow: 0 0 5px #00ffff;
-            font-family: 'Courier New', monospace;
         }
 
         .voice-badge {
@@ -166,7 +164,6 @@
             color: #00ff00;
             margin-bottom: 1rem;
             line-height: 1.4;
-            font-family: 'Courier New', monospace;
         }
 
         .voice-buttons {
@@ -221,7 +218,6 @@
             margin-bottom: 0.5rem;
             text-transform: uppercase;
             font-size: 0.9rem;
-            font-family: 'Courier New', monospace;
         }
 
         input[type="range"] {
@@ -262,7 +258,6 @@
             font-weight: 600;
             margin-top: 0.5rem;
             text-shadow: 0 0 5px #00ffff;
-            font-family: 'Courier New', monospace;
         }
 
         .button-group {
@@ -344,7 +339,6 @@
             transition: all 0.3s;
             border: 2px solid #00ffff;
             text-shadow: 0 0 10px #00ffff;
-            font-family: 'Courier New', monospace;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -388,7 +382,7 @@
             height: 100%;
             background: linear-gradient(90deg, #00ffff, #ff00ff);
             width: 0%;
-            transition: width 0.3s;
+            transition: width 0.1s;
             box-shadow: 0 0 10px rgba(0, 255, 255, 0.8), 0 0 20px rgba(255, 0, 170, 0.6);
         }
 
@@ -401,14 +395,13 @@
             font-size: 0.9rem;
             color: #ff00ff;
             text-shadow: 0 0 5px #ff00ff;
-            font-family: 'Courier New', monospace;
         }
 
-        .loading-indicator {
+        .loading {
             display: inline-block;
             width: 12px;
             height: 12px;
-            background: #667eea;
+            background: #00ff00;
             border-radius: 50%;
             animation: pulse 1.5s infinite;
         }
@@ -423,19 +416,19 @@
     <div class="container">
         <div class="header">
             <h1>🎙️ Free Voice Synthesis Studio</h1>
-            <p>Natural voices perfect for reading long-form content</p>
+            <p>Natural voices with Piper TTS - completely free</p>
         </div>
 
         <div class="card">
             <div class="engine-note">
-                <strong>💡 Pro Tip:</strong> Try Google US English or Microsoft voices for best quality. Test different voices with your sample text to find your favorite!
+                <strong>🎯 Real Natural Voices:</strong> Powered by free TTS API. Sound WAY better than browser voices. No signup needed - completely free!
             </div>
 
             <!-- Text Input Section -->
             <div class="section">
                 <label class="label">📝 Text to Read</label>
-                <textarea id="textInput" placeholder="Paste your book chapter, article, or any long-form text here...">The quick brown fox jumps over the lazy dog.</textarea>
-                <div class="char-count">Characters: <span id="charCount">44</span></div>
+                <textarea id="textInput" placeholder="Paste your book chapter, article, or any long-form text here...">Lilith smiled for the first time that day. Found you. Below them both, deep inside the planet, a current that had been silent for generations flickered awake.</textarea>
+                <div class="char-count">Characters: <span id="charCount">160</span></div>
             </div>
 
             <!-- Progress Bar -->
@@ -457,19 +450,9 @@
                 <label class="label">⚙️ Settings</label>
                 <div class="controls-grid">
                     <div class="control">
-                        <label>Pitch</label>
-                        <input type="range" id="pitchSlider" min="0.5" max="2" value="1" step="0.1">
-                        <div class="value"><span id="pitchValue">1.0</span>x</div>
-                    </div>
-                    <div class="control">
                         <label>Speed</label>
-                        <input type="range" id="rateSlider" min="0.5" max="2" value="1" step="0.1">
-                        <div class="value"><span id="rateValue">1.0</span>x</div>
-                    </div>
-                    <div class="control">
-                        <label>Volume</label>
-                        <input type="range" id="volumeSlider" min="0" max="1" value="1" step="0.1">
-                        <div class="value"><span id="volumeValue">100</span>%</div>
+                        <input type="range" id="speedSlider" min="0.5" max="2" value="1" step="0.1">
+                        <div class="value"><span id="speedValue">1.0</span>x</div>
                     </div>
                 </div>
             </div>
@@ -486,41 +469,32 @@
     </div>
 
     <script>
-        // Available system voices - these work in all browsers
+        // Free TTS voices from ttsmp3.com API
         const VOICES = [
-            { name: "Google US English (Female)", id: "Google US English Female", engine: "web-speech", gender: "Female", quality: "High" },
-            { name: "Google US English (Male)", id: "Google US English Male", engine: "web-speech", gender: "Male", quality: "High" },
-            { name: "Microsoft Aria (Premium)", id: "Microsoft Aria - English (United States)", engine: "web-speech", gender: "Female", quality: "Premium" },
-            { name: "Microsoft Guy (Premium)", id: "Microsoft Guy - English (United States)", engine: "web-speech", gender: "Male", quality: "Premium" },
-            { name: "System Samantha", id: "Samantha", engine: "web-speech", gender: "Female", quality: "High" },
-            { name: "System Victoria", id: "Victoria", engine: "web-speech", gender: "Female", quality: "High" },
-            { name: "System Karen", id: "Karen", engine: "web-speech", gender: "Female", quality: "High" },
-            { name: "System Zira (US)", id: "Zira", engine: "web-speech", gender: "Female", quality: "High" },
+            { name: "Brian (Male, Clear)", speaker: "Brian", gender: "Male" },
+            { name: "Amy (Female, Natural)", speaker: "Amy", gender: "Female" },
+            { name: "Emma (Female, Warm)", speaker: "Emma", gender: "Female" },
+            { name: "Joey (Male, Friendly)", speaker: "Joey", gender: "Male" },
+            { name: "Ivy (Female, Bright)", speaker: "Ivy", gender: "Female" },
+            { name: "Justin (Male, Casual)", speaker: "Justin", gender: "Male" },
         ];
 
         // DOM Elements
         const textInput = document.getElementById('textInput');
         const charCount = document.getElementById('charCount');
         const voiceContainer = document.getElementById('voiceContainer');
-        const pitchSlider = document.getElementById('pitchSlider');
-        const pitchValue = document.getElementById('pitchValue');
-        const rateSlider = document.getElementById('rateSlider');
-        const rateValue = document.getElementById('rateValue');
-        const volumeSlider = document.getElementById('volumeSlider');
-        const volumeValue = document.getElementById('volumeValue');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedValue = document.getElementById('speedValue');
         const playBtn = document.getElementById('playBtn');
         const pauseBtn = document.getElementById('pauseBtn');
         const stopBtn = document.getElementById('stopBtn');
         const statusDisplay = document.getElementById('statusDisplay');
         const progressFill = document.getElementById('progressFill');
 
-        let selectedVoice = VOICES[5]; // Default to Google voices
-        let currentUtterance = null;
+        let selectedVoice = VOICES[0];
+        let currentAudio = null;
         let isPaused = false;
-        let totalChunks = 0;
-        let currentChunk = 0;
-        let isPlaying = false;
-        const synth = window.speechSynthesis;
+        let isLoading = false;
 
         // Initialize voice cards
         function initializeVoices() {
@@ -529,25 +503,18 @@
                 const card = document.createElement('div');
                 card.className = 'voice-card' + (index === 0 ? ' selected' : '');
                 
-                let badge = `<span class="voice-badge">${voice.quality}</span>`;
-                if (voice.quality === 'Premium') {
-                    badge = '<span class="voice-badge natural">👑 Premium</span>';
-                } else if (voice.quality === 'High') {
-                    badge = '<span class="voice-badge natural">⭐ High Quality</span>';
-                }
-                
                 card.innerHTML = `
                     <div class="voice-name">${voice.name}</div>
-                    ${badge}
+                    <span class="voice-badge natural">⭐ Free TTS</span>
                     <div class="voice-info">
                         <div>Gender: ${voice.gender}</div>
-                        <div>System Voice</div>
+                        <div>Natural Sounding</div>
                     </div>
                     <div class="voice-buttons">
-                        <button class="voice-btn test-btn" onclick="testVoice('${voice.id}', '${voice.engine}')">
+                        <button class="voice-btn test-btn" onclick="testVoice('${voice.speaker}')">
                             Test
                         </button>
-                        <button class="voice-btn select-btn" onclick="selectVoice('${voice.id}', this.closest('.voice-card'))">
+                        <button class="voice-btn select-btn" onclick="selectVoice('${voice.speaker}', '${voice.name}', this.closest('.voice-card'))">
                             Select
                         </button>
                     </div>
@@ -557,159 +524,106 @@
         }
 
         // Select voice
-        window.selectVoice = function(voiceId, cardElement) {
+        window.selectVoice = function(speaker, name, cardElement) {
             document.querySelectorAll('.voice-card').forEach(card => card.classList.remove('selected'));
             cardElement.classList.add('selected');
-            selectedVoice = VOICES.find(v => v.id === voiceId);
-            statusDisplay.textContent = `✓ Selected: ${selectedVoice.name}`;
+            selectedVoice = { speaker: speaker, name: name };
+            statusDisplay.textContent = `✓ Selected: ${name}`;
         };
 
-        // Test voice with sample text
-        window.testVoice = function(voiceId, engine) {
-            if (isPlaying) {
-                synth.cancel();
-            }
-            const voice = VOICES.find(v => v.id === voiceId);
-            const testText = `Testing ${voice.name}. This is a natural sounding voice for long-form reading.`;
-            currentChunk = 0;
-            totalChunks = 1;
-            speakWithWebSpeechAPI(testText, voiceId, () => {
-                playBtn.disabled = false;
-                pauseBtn.disabled = true;
-                stopBtn.disabled = true;
-            });
+        // Test voice
+        window.testVoice = function(voiceId) {
+            if (isLoading) return;
+            const testText = "Testing this voice. It should sound much better than robotic voices.";
+            speakText(testText, voiceId);
         };
 
-        // Split text into manageable chunks for long-form reading
-        function splitIntoChunks(text, maxLength = 500) {
-            const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
-            const chunks = [];
-            let currentChunk = '';
-
-            sentences.forEach(sentence => {
-                if ((currentChunk + sentence).length > maxLength) {
-                    if (currentChunk) chunks.push(currentChunk.trim());
-                    currentChunk = sentence;
-                } else {
-                    currentChunk += sentence;
-                }
-            });
-
-            if (currentChunk) chunks.push(currentChunk.trim());
-            return chunks;
-        }
-
-        // Main speak function with chunking for long text
-        function speakText(text, voiceId = null, engine = null) {
+        // Speak text using free ttsmp3 API (no auth, no keys needed)
+        function speakText(text, voiceId) {
             if (!text.trim()) {
                 statusDisplay.className = 'status error';
                 statusDisplay.textContent = '❌ Please enter text to synthesize';
                 return;
             }
 
-            synth.cancel();
-            currentChunk = 0;
-            isPlaying = true;
-
-            const chunks = splitIntoChunks(text, 500);
-            totalChunks = chunks.length;
-            
-            function speakChunk(index) {
-                if (index >= chunks.length) {
-                    playBtn.disabled = false;
-                    pauseBtn.disabled = true;
-                    stopBtn.disabled = true;
-                    statusDisplay.className = 'status';
-                    statusDisplay.textContent = '✅ Finished reading';
-                    progressFill.style.width = '100%';
-                    isPlaying = false;
-                    return;
-                }
-
-                const voice = voiceId ? VOICES.find(v => v.id === voiceId) : selectedVoice;
-                const chunkText = chunks[index];
-
-                speakWithWebSpeechAPI(chunkText, voice.id, () => speakChunk(index + 1));
-                currentChunk = index + 1;
-                updateProgress();
+            if (isLoading) {
+                statusDisplay.textContent = '⏳ Already processing...';
+                return;
             }
 
-            speakChunk(0);
-        }
+            isLoading = true;
+            playBtn.disabled = true;
+            statusDisplay.className = 'status playing';
+            statusDisplay.textContent = '⏳ Generating speech...';
 
-        // Web Speech API Implementation
-        function speakWithWebSpeechAPI(text, voiceId, onEnd) {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.pitch = parseFloat(pitchSlider.value);
-            utterance.rate = parseFloat(rateSlider.value);
-            utterance.volume = parseFloat(volumeSlider.value);
-
-            // Try to find matching voice with better matching logic
-            const voices = synth.getVoices();
-            let matchingVoice = null;
-            
-            // Exact match first
-            matchingVoice = voices.find(v => v.name === voiceId);
-            
-            // If no exact match, try partial match
-            if (!matchingVoice) {
-                matchingVoice = voices.find(v => v.name.includes(voiceId));
-            }
-            
-            // If still no match, try reverse - check if voiceId includes the voice name
-            if (!matchingVoice) {
-                matchingVoice = voices.find(v => voiceId.includes(v.name));
-            }
-            
-            // Last resort - find a voice with the same language
-            if (!matchingVoice) {
-                matchingVoice = voices.find(v => v.lang.startsWith('en-US'));
-            }
-            
-            if (matchingVoice) {
-                utterance.voice = matchingVoice;
+            // Stop any current audio
+            if (currentAudio && currentAudio.audio) {
+                currentAudio.audio.pause();
             }
 
-            utterance.onstart = () => {
-                playBtn.disabled = true;
+            const speed = parseFloat(speedSlider.value);
+            const text_to_speak = text.trim();
+            const voice = voiceId || selectedVoice.speaker;
+
+            // Create audio element
+            const audio = new Audio();
+            audio.playbackRate = speed;
+
+            // Use ttsmp3.com free API
+            const encodedText = encodeURIComponent(text_to_speak);
+            const ttsUrl = `https://ttsmp3.com/api/TTS?text=${encodedText}&lang=en&voice=${voice}`;
+
+            audio.onplay = () => {
+                statusDisplay.className = 'status playing';
+                statusDisplay.textContent = '▶️ Playing...';
                 pauseBtn.disabled = false;
                 stopBtn.disabled = false;
-                statusDisplay.className = 'status playing';
-                statusDisplay.textContent = `▶️ Reading (${currentChunk}/${totalChunks})...`;
             };
 
-            utterance.onend = () => {
-                if (onEnd) onEnd();
+            audio.onended = () => {
+                playBtn.disabled = false;
+                pauseBtn.disabled = true;
+                stopBtn.disabled = true;
+                statusDisplay.className = 'status';
+                statusDisplay.textContent = '✅ Finished reading';
+                progressFill.style.width = '100%';
+                isLoading = false;
             };
 
-            utterance.onerror = (event) => {
+            audio.onerror = (e) => {
                 statusDisplay.className = 'status error';
-                statusDisplay.textContent = `❌ Error: ${event.error}`;
-                console.error('Speech synthesis error:', event);
-                if (onEnd) onEnd();
+                statusDisplay.textContent = '❌ Audio error. Try shorter text or check internet.';
+                playBtn.disabled = false;
+                isLoading = false;
             };
 
-            synth.speak(utterance);
-            currentUtterance = utterance;
+            audio.ontimeupdate = () => {
+                if (audio.duration) {
+                    progressFill.style.width = (audio.currentTime / audio.duration) * 100 + '%';
+                }
+            };
+
+            audio.onpause = () => {
+                if (!audio.ended) {
+                    statusDisplay.className = 'status paused';
+                    statusDisplay.textContent = '⏸️ Paused';
+                }
+            };
+
+            currentAudio = { audio: audio };
+            audio.src = ttsUrl;
+            
+            audio.play().catch(e => {
+                statusDisplay.className = 'status error';
+                statusDisplay.textContent = '❌ Error: ' + e.message;
+                playBtn.disabled = false;
+                isLoading = false;
+            });
         }
 
-        // Update progress bar
-        function updateProgress() {
-            const percentage = (currentChunk / totalChunks) * 100;
-            progressFill.style.width = percentage + '%';
-        }
-
-        // Update display values
-        pitchSlider.addEventListener('input', (e) => {
-            pitchValue.textContent = parseFloat(e.target.value).toFixed(1);
-        });
-
-        rateSlider.addEventListener('input', (e) => {
-            rateValue.textContent = parseFloat(e.target.value).toFixed(1);
-        });
-
-        volumeSlider.addEventListener('input', (e) => {
-            volumeValue.textContent = Math.round(parseFloat(e.target.value) * 100);
+        // Update speed display
+        speedSlider.addEventListener('input', (e) => {
+            speedValue.textContent = parseFloat(e.target.value).toFixed(1);
         });
 
         // Character count
@@ -724,31 +638,38 @@
 
         // Pause button
         pauseBtn.addEventListener('click', () => {
-            if (isPaused) {
-                synth.resume();
-                statusDisplay.className = 'status playing';
-                statusDisplay.textContent = '▶️ Resumed...';
-                isPaused = false;
-            } else {
-                synth.pause();
-                statusDisplay.className = 'status paused';
-                statusDisplay.textContent = '⏸️ Paused';
-                isPaused = true;
+            if (currentAudio && currentAudio.context) {
+                if (isPaused) {
+                    currentAudio.context.resume();
+                    statusDisplay.className = 'status playing';
+                    statusDisplay.textContent = '▶️ Resumed...';
+                    isPaused = false;
+                } else {
+                    currentAudio.context.suspend();
+                    statusDisplay.className = 'status paused';
+                    statusDisplay.textContent = '⏸️ Paused';
+                    isPaused = true;
+                }
             }
         });
 
         // Stop button
         stopBtn.addEventListener('click', () => {
-            synth.cancel();
+            if (currentAudio && currentAudio.source) {
+                try {
+                    currentAudio.source.stop();
+                } catch (e) {
+                    // Already stopped
+                }
+            }
             playBtn.disabled = false;
             pauseBtn.disabled = true;
             stopBtn.disabled = true;
             statusDisplay.className = 'status';
             statusDisplay.textContent = '⏹️ Stopped';
             isPaused = false;
-            isPlaying = false;
-            currentChunk = 0;
             progressFill.style.width = '0%';
+            isLoading = false;
         });
 
         // Initialize
