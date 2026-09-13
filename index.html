@@ -428,7 +428,7 @@
 
         <div class="card">
             <div class="engine-note">
-                <strong>💡 Pro Tip:</strong> Piper voices are most natural for long-form reading. Google voices are also excellent. Test different voices with your sample text!
+                <strong>💡 Pro Tip:</strong> Try Google US English or Microsoft voices for best quality. Test different voices with your sample text to find your favorite!
             </div>
 
             <!-- Text Input Section -->
@@ -486,26 +486,16 @@
     </div>
 
     <script>
-        // Comprehensive voice collection with focus on natural-sounding options
+        // Available system voices - these work in all browsers
         const VOICES = [
-            // Piper TTS Voices (Most Natural - Neural Quality)
-            { name: "Piper - Amy (American, Neutral)", id: "piper-amy", engine: "piper", gender: "Female", quality: "Natural" },
-            { name: "Piper - Clyde (American, Warm)", id: "piper-clyde", engine: "piper", gender: "Male", quality: "Natural" },
-            { name: "Piper - Lessac (American, Clear)", id: "piper-lessac", engine: "piper", gender: "Male", quality: "Natural" },
-            { name: "Piper - Libritts (American, Expressive)", id: "piper-libritts", engine: "piper", gender: "Female", quality: "Natural" },
-            { name: "Piper - Vctk (American, Various)", id: "piper-vctk", engine: "piper", gender: "Male", quality: "Natural" },
-
-            // Google Web Speech API (High Quality)
-            { name: "Google - English US (Female)", id: "Google US English Female", engine: "google", gender: "Female", quality: "High" },
-            { name: "Google - English US (Male)", id: "Google US English Male", engine: "google", gender: "Male", quality: "High" },
-
-            // Microsoft Edge Web Speech API (Premium, if available)
-            { name: "Microsoft - Aria (Neutral)", id: "Microsoft Aria", engine: "edge", gender: "Female", quality: "Premium" },
-            { name: "Microsoft - Guy (Warm)", id: "Microsoft Guy", engine: "edge", gender: "Male", quality: "Premium" },
-
-            // Fallback Web Speech Voices
-            { name: "System - Default Female", id: "default-female", engine: "web-speech", gender: "Female", quality: "Basic" },
-            { name: "System - Default Male", id: "default-male", engine: "web-speech", gender: "Male", quality: "Basic" },
+            { name: "Google US English (Female)", id: "Google US English Female", engine: "web-speech", gender: "Female", quality: "High" },
+            { name: "Google US English (Male)", id: "Google US English Male", engine: "web-speech", gender: "Male", quality: "High" },
+            { name: "Microsoft Aria (Premium)", id: "Microsoft Aria - English (United States)", engine: "web-speech", gender: "Female", quality: "Premium" },
+            { name: "Microsoft Guy (Premium)", id: "Microsoft Guy - English (United States)", engine: "web-speech", gender: "Male", quality: "Premium" },
+            { name: "System Samantha", id: "Samantha", engine: "web-speech", gender: "Female", quality: "High" },
+            { name: "System Victoria", id: "Victoria", engine: "web-speech", gender: "Female", quality: "High" },
+            { name: "System Karen", id: "Karen", engine: "web-speech", gender: "Female", quality: "High" },
+            { name: "System Zira (US)", id: "Zira", engine: "web-speech", gender: "Female", quality: "High" },
         ];
 
         // DOM Elements
@@ -524,11 +514,12 @@
         const statusDisplay = document.getElementById('statusDisplay');
         const progressFill = document.getElementById('progressFill');
 
-        let selectedVoice = VOICES[0];
+        let selectedVoice = VOICES[5]; // Default to Google voices
         let currentUtterance = null;
         let isPaused = false;
         let totalChunks = 0;
         let currentChunk = 0;
+        let isPlaying = false;
         const synth = window.speechSynthesis;
 
         // Initialize voice cards
@@ -538,16 +529,19 @@
                 const card = document.createElement('div');
                 card.className = 'voice-card' + (index === 0 ? ' selected' : '');
                 
-                const badge = voice.quality === 'Natural' 
-                    ? '<span class="voice-badge natural">⭐ Natural</span>'
-                    : `<span class="voice-badge">${voice.quality}</span>`;
+                let badge = `<span class="voice-badge">${voice.quality}</span>`;
+                if (voice.quality === 'Premium') {
+                    badge = '<span class="voice-badge natural">👑 Premium</span>';
+                } else if (voice.quality === 'High') {
+                    badge = '<span class="voice-badge natural">⭐ High Quality</span>';
+                }
                 
                 card.innerHTML = `
                     <div class="voice-name">${voice.name}</div>
                     ${badge}
                     <div class="voice-info">
-                        <div>Engine: ${voice.engine.toUpperCase()}</div>
                         <div>Gender: ${voice.gender}</div>
+                        <div>System Voice</div>
                     </div>
                     <div class="voice-buttons">
                         <button class="voice-btn test-btn" onclick="testVoice('${voice.id}', '${voice.engine}')">
@@ -572,10 +566,18 @@
 
         // Test voice with sample text
         window.testVoice = function(voiceId, engine) {
-            synth.cancel();
+            if (isPlaying) {
+                synth.cancel();
+            }
             const voice = VOICES.find(v => v.id === voiceId);
             const testText = `Testing ${voice.name}. This is a natural sounding voice for long-form reading.`;
-            speakText(testText, voiceId, engine);
+            currentChunk = 0;
+            totalChunks = 1;
+            speakWithWebSpeechAPI(testText, voiceId, () => {
+                playBtn.disabled = false;
+                pauseBtn.disabled = true;
+                stopBtn.disabled = true;
+            });
         };
 
         // Split text into manageable chunks for long-form reading
@@ -607,6 +609,7 @@
 
             synth.cancel();
             currentChunk = 0;
+            isPlaying = true;
 
             const chunks = splitIntoChunks(text, 500);
             totalChunks = chunks.length;
@@ -619,21 +622,14 @@
                     statusDisplay.className = 'status';
                     statusDisplay.textContent = '✅ Finished reading';
                     progressFill.style.width = '100%';
+                    isPlaying = false;
                     return;
                 }
 
                 const voice = voiceId ? VOICES.find(v => v.id === voiceId) : selectedVoice;
-                const actualEngine = engine || voice.engine;
                 const chunkText = chunks[index];
 
-                if (actualEngine === 'piper') {
-                    speakWithPiper(chunkText, voice.id, () => speakChunk(index + 1));
-                } else if (actualEngine === 'google' || actualEngine === 'edge') {
-                    speakWithWebSpeechAPI(chunkText, voice.id, () => speakChunk(index + 1));
-                } else {
-                    speakWithWebSpeechAPI(chunkText, voice.id, () => speakChunk(index + 1));
-                }
-
+                speakWithWebSpeechAPI(chunkText, voice.id, () => speakChunk(index + 1));
                 currentChunk = index + 1;
                 updateProgress();
             }
@@ -641,48 +637,35 @@
             speakChunk(0);
         }
 
-        // Piper TTS Implementation
-        function speakWithPiper(text, voiceId, onEnd) {
-            // Using Hugging Face's Piper endpoint for browser-based TTS
-            const voice = selectedVoice.id.split('-')[1] || 'amy';
-            
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.pitch = parseFloat(pitchSlider.value);
-            utterance.rate = parseFloat(rateSlider.value);
-            utterance.volume = parseFloat(volumeSlider.value);
-
-            utterance.onstart = () => {
-                playBtn.disabled = true;
-                pauseBtn.disabled = false;
-                stopBtn.disabled = false;
-                statusDisplay.className = 'status playing';
-                statusDisplay.textContent = `▶️ Reading (${currentChunk}/${totalChunks})...`;
-            };
-
-            utterance.onend = () => {
-                if (onEnd) onEnd();
-            };
-
-            utterance.onerror = () => {
-                statusDisplay.className = 'status error';
-                statusDisplay.textContent = '❌ Voice playback error. Trying alternative...';
-                if (onEnd) onEnd();
-            };
-
-            synth.speak(utterance);
-            currentUtterance = utterance;
-        }
-
-        // Web Speech API Implementation (Google, Edge, etc)
+        // Web Speech API Implementation
         function speakWithWebSpeechAPI(text, voiceId, onEnd) {
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.pitch = parseFloat(pitchSlider.value);
             utterance.rate = parseFloat(rateSlider.value);
             utterance.volume = parseFloat(volumeSlider.value);
 
-            // Try to find matching voice
+            // Try to find matching voice with better matching logic
             const voices = synth.getVoices();
-            const matchingVoice = voices.find(v => v.name === voiceId || v.name.includes(voiceId));
+            let matchingVoice = null;
+            
+            // Exact match first
+            matchingVoice = voices.find(v => v.name === voiceId);
+            
+            // If no exact match, try partial match
+            if (!matchingVoice) {
+                matchingVoice = voices.find(v => v.name.includes(voiceId));
+            }
+            
+            // If still no match, try reverse - check if voiceId includes the voice name
+            if (!matchingVoice) {
+                matchingVoice = voices.find(v => voiceId.includes(v.name));
+            }
+            
+            // Last resort - find a voice with the same language
+            if (!matchingVoice) {
+                matchingVoice = voices.find(v => v.lang.startsWith('en-US'));
+            }
+            
             if (matchingVoice) {
                 utterance.voice = matchingVoice;
             }
@@ -699,9 +682,10 @@
                 if (onEnd) onEnd();
             };
 
-            utterance.onerror = () => {
+            utterance.onerror = (event) => {
                 statusDisplay.className = 'status error';
-                statusDisplay.textContent = '❌ Voice playback error';
+                statusDisplay.textContent = `❌ Error: ${event.error}`;
+                console.error('Speech synthesis error:', event);
                 if (onEnd) onEnd();
             };
 
@@ -762,6 +746,8 @@
             statusDisplay.className = 'status';
             statusDisplay.textContent = '⏹️ Stopped';
             isPaused = false;
+            isPlaying = false;
+            currentChunk = 0;
             progressFill.style.width = '0%';
         });
 
