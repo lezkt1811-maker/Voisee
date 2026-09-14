@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎙️ Free Voice Synthesis Studio - Piper TTS</title>
+    <title>🎙️ Free Voice Synthesis Studio</title>
+    <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
     <style>
         * {
             margin: 0;
@@ -18,7 +19,7 @@
                 radial-gradient(circle at 20% 50%, rgba(255, 0, 170, 0.1) 0%, transparent 50%),
                 radial-gradient(circle at 80% 80%, rgba(0, 255, 255, 0.1) 0%, transparent 50%);
             font-family: 'Courier New', monospace;
-            padding: 2rem;
+            padding: 1rem;
             color: #00ffff;
         }
 
@@ -29,44 +30,40 @@
 
         .header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
         }
 
         .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            font-weight: bold;
+            font-size: 2rem;
+            margin-bottom: 0.2rem;
             color: #ff00ff;
-            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff1493, 0 0 40px #ff1493;
-            letter-spacing: 2px;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+            letter-spacing: 1px;
             text-transform: uppercase;
         }
 
         .header p {
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: #00ffff;
-            text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
-            letter-spacing: 1px;
+            text-shadow: 0 0 10px #00ffff;
         }
 
         .card {
-            background: rgba(10, 0, 21, 0.8);
+            background: rgba(10, 0, 21, 0.9);
             border: 2px solid #00ffff;
-            border-radius: 4px;
-            padding: 2rem;
+            padding: 1.5rem;
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), inset 0 0 20px rgba(255, 0, 170, 0.1);
-            backdrop-filter: blur(10px);
         }
 
         .section {
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .label {
             display: block;
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 600;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.5rem;
             color: #ff00ff;
             text-shadow: 0 0 5px #ff00ff;
             text-transform: uppercase;
@@ -75,18 +72,16 @@
 
         textarea {
             width: 100%;
-            min-height: 200px;
+            height: 300px;
             padding: 1rem;
             font-size: 1rem;
             border: 2px solid #00ffff;
-            border-radius: 0px;
             font-family: 'Courier New', monospace;
             resize: vertical;
-            outline: none;
-            transition: all 0.3s;
             background: rgba(0, 20, 40, 0.6);
             color: #00ff00;
             box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.2);
+            outline: none;
         }
 
         textarea:focus {
@@ -95,99 +90,34 @@
         }
 
         .char-count {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #00ffff;
-            margin-top: 0.5rem;
+            margin-top: 0.3rem;
             text-shadow: 0 0 5px #00ffff;
         }
 
-        .voice-container {
+        .voice-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .voice-card {
-            background: rgba(20, 0, 40, 0.6);
-            border: 2px solid #00ffff;
-            border-radius: 0px;
-            padding: 1.2rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.1);
-        }
-
-        .voice-card:hover {
-            border-color: #ff00ff;
-            box-shadow: 0 0 15px rgba(255, 0, 170, 0.4), inset 0 0 10px rgba(255, 0, 170, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .voice-card.selected {
-            background: rgba(255, 0, 170, 0.1);
-            border-color: #ff00ff;
-            box-shadow: 0 0 20px rgba(255, 0, 170, 0.5), inset 0 0 15px rgba(255, 0, 170, 0.2);
-        }
-
-        .voice-name {
-            font-weight: 700;
-            color: #00ffff;
-            margin-bottom: 0.5rem;
-            font-size: 1rem;
-            text-shadow: 0 0 5px #00ffff;
-        }
-
-        .voice-badge {
-            display: inline-block;
-            background: rgba(0, 255, 255, 0.2);
-            color: #00ffff;
-            border: 1px solid #00ffff;
-            padding: 0.25rem 0.75rem;
-            border-radius: 0px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-bottom: 0.75rem;
-            text-shadow: 0 0 5px #00ffff;
-            text-transform: uppercase;
-        }
-
-        .voice-badge.natural {
-            background: rgba(255, 0, 170, 0.2);
-            border-color: #ff00ff;
-            color: #ff00ff;
-            text-shadow: 0 0 5px #ff00ff;
-        }
-
-        .voice-info {
-            font-size: 0.85rem;
-            color: #00ff00;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.6rem;
             margin-bottom: 1rem;
-            line-height: 1.4;
-        }
-
-        .voice-buttons {
-            display: flex;
-            gap: 0.5rem;
         }
 
         .voice-btn {
-            flex: 1;
-            padding: 0.6rem;
-            font-size: 0.85rem;
-            background: rgba(0, 255, 255, 0.2);
+            padding: 0.7rem;
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid #00ffff;
             color: #00ffff;
-            border: 1px solid #00ffff;
-            border-radius: 0px;
             cursor: pointer;
             transition: all 0.3s;
-            font-weight: 600;
-            text-shadow: 0 0 5px #00ffff;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 5px #00ffff;
         }
 
-        .voice-btn:hover:not(:disabled) {
+        .voice-btn:hover {
             background: rgba(255, 0, 170, 0.3);
             border-color: #ff00ff;
             color: #ff00ff;
@@ -195,16 +125,17 @@
             box-shadow: 0 0 10px rgba(255, 0, 170, 0.5);
         }
 
-        .voice-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
+        .voice-btn.active {
+            background: rgba(255, 0, 170, 0.2);
+            border-color: #ff00ff;
+            box-shadow: 0 0 15px rgba(255, 0, 170, 0.6);
         }
 
-        .controls-grid {
+        .controls {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
         }
 
         .control {
@@ -215,9 +146,9 @@
         .control label {
             color: #ff00ff;
             text-shadow: 0 0 5px #ff00ff;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.3rem;
             text-transform: uppercase;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
 
         input[type="range"] {
@@ -226,7 +157,6 @@
             cursor: pointer;
             background: rgba(0, 255, 255, 0.1);
             border: 1px solid #00ffff;
-            border-radius: 4px;
             -webkit-appearance: none;
             appearance: none;
         }
@@ -253,26 +183,24 @@
         }
 
         .value {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: #00ffff;
-            font-weight: 600;
-            margin-top: 0.5rem;
+            margin-top: 0.2rem;
             text-shadow: 0 0 5px #00ffff;
         }
 
-        .button-group {
+        .buttons {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 0.75rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
         }
 
         button {
-            padding: 0.75rem 1.5rem;
-            font-size: 0.95rem;
+            padding: 0.8rem;
+            font-size: 0.9rem;
             font-weight: 600;
             border: 2px solid #00ffff;
-            border-radius: 0px;
             cursor: pointer;
             transition: all 0.3s;
             color: #00ffff;
@@ -286,41 +214,25 @@
         .btn-play {
             border-color: #00ff00;
             color: #00ff00;
-            text-shadow: 0 0 5px #00ff00;
             background: rgba(0, 255, 0, 0.1);
             grid-column: span 2;
         }
 
         .btn-play:hover:not(:disabled) {
             background: rgba(0, 255, 0, 0.3);
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
-            transform: scale(1.05);
-        }
-
-        .btn-pause {
-            border-color: #ff00ff;
-            color: #ff00ff;
-            text-shadow: 0 0 5px #ff00ff;
-            background: rgba(255, 0, 170, 0.1);
-        }
-
-        .btn-pause:hover:not(:disabled) {
-            background: rgba(255, 0, 170, 0.3);
-            box-shadow: 0 0 20px rgba(255, 0, 170, 0.6);
-            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
         }
 
         .btn-stop {
             border-color: #ff0080;
             color: #ff0080;
-            text-shadow: 0 0 5px #ff0080;
             background: rgba(255, 0, 128, 0.1);
+            grid-column: span 2;
         }
 
         .btn-stop:hover:not(:disabled) {
             background: rgba(255, 0, 128, 0.3);
-            box-shadow: 0 0 20px rgba(255, 0, 128, 0.6);
-            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 0, 128, 0.6);
         }
 
         button:disabled {
@@ -330,17 +242,16 @@
 
         .status {
             padding: 1rem;
-            border-radius: 0px;
             background: rgba(0, 255, 255, 0.1);
             color: #00ffff;
             font-weight: 600;
             text-align: center;
-            margin-bottom: 1rem;
-            transition: all 0.3s;
             border: 2px solid #00ffff;
             text-shadow: 0 0 10px #00ffff;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
         }
 
         .status.playing {
@@ -351,14 +262,6 @@
             box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
         }
 
-        .status.paused {
-            background: rgba(255, 255, 0, 0.1);
-            color: #ffff00;
-            border-color: #ffff00;
-            text-shadow: 0 0 10px #ffff00;
-            box-shadow: 0 0 15px rgba(255, 255, 0, 0.3);
-        }
-
         .status.error {
             background: rgba(255, 0, 128, 0.1);
             color: #ff0080;
@@ -367,15 +270,13 @@
             box-shadow: 0 0 15px rgba(255, 0, 128, 0.3);
         }
 
-        .progress-bar {
+        .progress {
             width: 100%;
             height: 8px;
             background: rgba(0, 255, 255, 0.1);
-            border-radius: 0px;
+            border: 1px solid #00ffff;
             margin-bottom: 1rem;
             overflow: hidden;
-            border: 1px solid #00ffff;
-            box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.2);
         }
 
         .progress-fill {
@@ -383,247 +284,106 @@
             background: linear-gradient(90deg, #00ffff, #ff00ff);
             width: 0%;
             transition: width 0.1s;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.8), 0 0 20px rgba(255, 0, 170, 0.6);
-        }
-
-        .engine-note {
-            background: rgba(255, 0, 170, 0.1);
-            padding: 1rem;
-            border-radius: 0px;
-            border-left: 4px solid #ff00ff;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-            color: #ff00ff;
-            text-shadow: 0 0 5px #ff00ff;
-        }
-
-        .loading {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            background: #00ff00;
-            border-radius: 50%;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎙️ Free Voice Synthesis Studio</h1>
-            <p>Natural voices with Piper TTS - completely free</p>
+            <h1>🎙️ FREE VOICE</h1>
+            <p>Natural TTS Reading - American Voices</p>
         </div>
 
         <div class="card">
-            <div class="engine-note">
-                <strong>🎯 Real Natural Voices:</strong> Powered by free TTS API. Sound WAY better than browser voices. No signup needed - completely free!
-            </div>
-
-            <!-- Text Input Section -->
             <div class="section">
-                <label class="label">📝 Text to Read</label>
-                <textarea id="textInput" placeholder="Paste your book chapter, article, or any long-form text here...">Lilith smiled for the first time that day. Found you. Below them both, deep inside the planet, a current that had been silent for generations flickered awake.</textarea>
-                <div class="char-count">Characters: <span id="charCount">160</span></div>
+                <label class="label">📝 Text</label>
+                <textarea id="textInput" placeholder="Paste your book chapter, article, or any text here...">Lilith smiled for the first time that day. Found you. Below them both, deep inside the planet, a current that had been silent for generations flickered awake. The ground trembled beneath their feet as ancient machinery groaned back to life. Somewhere in the darkness, something was waking up. Something that had been sleeping for ten thousand years. And it was hungry.</textarea>
+                <div class="char-count">Characters: <span id="charCount">0</span></div>
             </div>
 
-            <!-- Progress Bar -->
-            <div class="progress-bar">
+            <div class="progress">
                 <div class="progress-fill" id="progressFill"></div>
             </div>
 
-            <!-- Status Display -->
-            <div class="status" id="statusDisplay">Ready to speak</div>
+            <div class="status" id="statusDisplay">Ready</div>
 
-            <!-- Voice Selection -->
             <div class="section">
-                <label class="label">🎤 Select a Voice</label>
-                <div class="voice-container" id="voiceContainer"></div>
+                <label class="label">🎤 Voice (American)</label>
+                <div class="voice-grid">
+                    <button class="voice-btn active" data-voice="US English Female">Female - Natural</button>
+                    <button class="voice-btn" data-voice="US English Male">Male - Deep</button>
+                    <button class="voice-btn" data-voice="Google US English Female">Google Female</button>
+                    <button class="voice-btn" data-voice="Google US English Male">Google Male</button>
+                    <button class="voice-btn" data-voice="Zira">Female - Zira</button>
+                    <button class="voice-btn" data-voice="David">Male - David</button>
+                </div>
             </div>
 
-            <!-- Controls -->
             <div class="section">
                 <label class="label">⚙️ Settings</label>
-                <div class="controls-grid">
+                <div class="controls">
                     <div class="control">
                         <label>Speed</label>
                         <input type="range" id="speedSlider" min="0.5" max="2" value="1" step="0.1">
                         <div class="value"><span id="speedValue">1.0</span>x</div>
                     </div>
+                    <div class="control">
+                        <label>Pitch</label>
+                        <input type="range" id="pitchSlider" min="0.5" max="2" value="1" step="0.1">
+                        <div class="value"><span id="pitchValue">1.0</span>x</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Playback Controls -->
-            <div class="section">
-                <div class="button-group">
-                    <button class="btn-play" id="playBtn">▶️ Play</button>
-                    <button class="btn-pause" id="pauseBtn" disabled>⏸️ Pause</button>
-                    <button class="btn-stop" id="stopBtn" disabled>⏹️ Stop</button>
-                </div>
+            <div class="buttons">
+                <button class="btn-play" id="playBtn">▶️ Play</button>
+                <button class="btn-stop" id="stopBtn" disabled>⏹️ Stop</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Free TTS voices from ttsmp3.com API
-        const VOICES = [
-            { name: "Brian (Male, Clear)", speaker: "Brian", gender: "Male" },
-            { name: "Amy (Female, Natural)", speaker: "Amy", gender: "Female" },
-            { name: "Emma (Female, Warm)", speaker: "Emma", gender: "Female" },
-            { name: "Joey (Male, Friendly)", speaker: "Joey", gender: "Male" },
-            { name: "Ivy (Female, Bright)", speaker: "Ivy", gender: "Female" },
-            { name: "Justin (Male, Casual)", speaker: "Justin", gender: "Male" },
-        ];
+        let selectedVoice = 'US English Female';
+        let isPlaying = false;
 
-        // DOM Elements
         const textInput = document.getElementById('textInput');
         const charCount = document.getElementById('charCount');
-        const voiceContainer = document.getElementById('voiceContainer');
-        const speedSlider = document.getElementById('speedSlider');
-        const speedValue = document.getElementById('speedValue');
-        const playBtn = document.getElementById('playBtn');
-        const pauseBtn = document.getElementById('pauseBtn');
-        const stopBtn = document.getElementById('stopBtn');
         const statusDisplay = document.getElementById('statusDisplay');
         const progressFill = document.getElementById('progressFill');
+        const playBtn = document.getElementById('playBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedValue = document.getElementById('speedValue');
+        const pitchSlider = document.getElementById('pitchSlider');
+        const pitchValue = document.getElementById('pitchValue');
 
-        let selectedVoice = VOICES[0];
-        let currentAudio = null;
-        let isPaused = false;
-        let isLoading = false;
-
-        // Initialize voice cards
-        function initializeVoices() {
-            voiceContainer.innerHTML = '';
-            VOICES.forEach((voice, index) => {
-                const card = document.createElement('div');
-                card.className = 'voice-card' + (index === 0 ? ' selected' : '');
-                
-                card.innerHTML = `
-                    <div class="voice-name">${voice.name}</div>
-                    <span class="voice-badge natural">⭐ Free TTS</span>
-                    <div class="voice-info">
-                        <div>Gender: ${voice.gender}</div>
-                        <div>Natural Sounding</div>
-                    </div>
-                    <div class="voice-buttons">
-                        <button class="voice-btn test-btn" onclick="testVoice('${voice.speaker}')">
-                            Test
-                        </button>
-                        <button class="voice-btn select-btn" onclick="selectVoice('${voice.speaker}', '${voice.name}', this.closest('.voice-card'))">
-                            Select
-                        </button>
-                    </div>
-                `;
-                voiceContainer.appendChild(card);
-            });
+        // Wait for ResponsiveVoice to load
+        if (typeof responsiveVoice !== 'undefined') {
+            responsiveVoice.OnFinishedCallback = function() {
+                if (!isPlaying) return;
+            };
         }
 
-        // Select voice
-        window.selectVoice = function(speaker, name, cardElement) {
-            document.querySelectorAll('.voice-card').forEach(card => card.classList.remove('selected'));
-            cardElement.classList.add('selected');
-            selectedVoice = { speaker: speaker, name: name };
-            statusDisplay.textContent = `✓ Selected: ${name}`;
-        };
-
-        // Test voice
-        window.testVoice = function(voiceId) {
-            if (isLoading) return;
-            const testText = "Testing this voice. It should sound much better than robotic voices.";
-            speakText(testText, voiceId);
-        };
-
-        // Speak text using free ttsmp3 API (no auth, no keys needed)
-        function speakText(text, voiceId) {
-            if (!text.trim()) {
-                statusDisplay.className = 'status error';
-                statusDisplay.textContent = '❌ Please enter text to synthesize';
-                return;
-            }
-
-            if (isLoading) {
-                statusDisplay.textContent = '⏳ Already processing...';
-                return;
-            }
-
-            isLoading = true;
-            playBtn.disabled = true;
-            statusDisplay.className = 'status playing';
-            statusDisplay.textContent = '⏳ Generating speech...';
-
-            // Stop any current audio
-            if (currentAudio && currentAudio.audio) {
-                currentAudio.audio.pause();
-            }
-
-            const speed = parseFloat(speedSlider.value);
-            const text_to_speak = text.trim();
-            const voice = voiceId || selectedVoice.speaker;
-
-            // Create audio element
-            const audio = new Audio();
-            audio.playbackRate = speed;
-
-            // Use ttsmp3.com free API
-            const encodedText = encodeURIComponent(text_to_speak);
-            const ttsUrl = `https://ttsmp3.com/api/TTS?text=${encodedText}&lang=en&voice=${voice}`;
-
-            audio.onplay = () => {
-                statusDisplay.className = 'status playing';
-                statusDisplay.textContent = '▶️ Playing...';
-                pauseBtn.disabled = false;
-                stopBtn.disabled = false;
-            };
-
-            audio.onended = () => {
-                playBtn.disabled = false;
-                pauseBtn.disabled = true;
-                stopBtn.disabled = true;
+        // Voice selection
+        document.querySelectorAll('.voice-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.voice-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedVoice = btn.dataset.voice;
+                statusDisplay.textContent = '✓ Voice: ' + btn.textContent.trim();
                 statusDisplay.className = 'status';
-                statusDisplay.textContent = '✅ Finished reading';
-                progressFill.style.width = '100%';
-                isLoading = false;
-            };
-
-            audio.onerror = (e) => {
-                statusDisplay.className = 'status error';
-                statusDisplay.textContent = '❌ Audio error. Try shorter text or check internet.';
-                playBtn.disabled = false;
-                isLoading = false;
-            };
-
-            audio.ontimeupdate = () => {
-                if (audio.duration) {
-                    progressFill.style.width = (audio.currentTime / audio.duration) * 100 + '%';
-                }
-            };
-
-            audio.onpause = () => {
-                if (!audio.ended) {
-                    statusDisplay.className = 'status paused';
-                    statusDisplay.textContent = '⏸️ Paused';
-                }
-            };
-
-            currentAudio = { audio: audio };
-            audio.src = ttsUrl;
-            
-            audio.play().catch(e => {
-                statusDisplay.className = 'status error';
-                statusDisplay.textContent = '❌ Error: ' + e.message;
-                playBtn.disabled = false;
-                isLoading = false;
             });
-        }
+        });
 
-        // Update speed display
+        // Sliders
         speedSlider.addEventListener('input', (e) => {
             speedValue.textContent = parseFloat(e.target.value).toFixed(1);
+        });
+
+        pitchSlider.addEventListener('input', (e) => {
+            pitchValue.textContent = parseFloat(e.target.value).toFixed(1);
         });
 
         // Character count
@@ -631,49 +391,85 @@
             charCount.textContent = e.target.value.length;
         });
 
-        // Play button
-        playBtn.addEventListener('click', () => {
-            speakText(textInput.value);
-        });
-
-        // Pause button
-        pauseBtn.addEventListener('click', () => {
-            if (currentAudio && currentAudio.context) {
-                if (isPaused) {
-                    currentAudio.context.resume();
-                    statusDisplay.className = 'status playing';
-                    statusDisplay.textContent = '▶️ Resumed...';
-                    isPaused = false;
-                } else {
-                    currentAudio.context.suspend();
-                    statusDisplay.className = 'status paused';
-                    statusDisplay.textContent = '⏸️ Paused';
-                    isPaused = true;
-                }
-            }
-        });
-
         // Stop button
-        stopBtn.addEventListener('click', () => {
-            if (currentAudio && currentAudio.source) {
-                try {
-                    currentAudio.source.stop();
-                } catch (e) {
-                    // Already stopped
-                }
+        stopBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (typeof responsiveVoice !== 'undefined') {
+                responsiveVoice.cancel();
             }
+            isPlaying = false;
             playBtn.disabled = false;
-            pauseBtn.disabled = true;
             stopBtn.disabled = true;
-            statusDisplay.className = 'status';
             statusDisplay.textContent = '⏹️ Stopped';
-            isPaused = false;
+            statusDisplay.className = 'status';
             progressFill.style.width = '0%';
-            isLoading = false;
+        });
+
+        // Play button
+        playBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            const text = textInput.value.trim();
+            if (!text) {
+                statusDisplay.textContent = '❌ Please enter text';
+                statusDisplay.className = 'status error';
+                return;
+            }
+
+            if (isPlaying) return;
+
+            if (typeof responsiveVoice === 'undefined') {
+                statusDisplay.textContent = '⏳ Loading voices...';
+                statusDisplay.className = 'status playing';
+                setTimeout(() => playBtn.click(), 2000);
+                return;
+            }
+
+            isPlaying = true;
+            playBtn.disabled = true;
+            stopBtn.disabled = false;
+            statusDisplay.textContent = '▶️ Reading...';
+            statusDisplay.className = 'status playing';
+            progressFill.style.width = '10%';
+
+            const rate = parseFloat(speedSlider.value);
+            const pitch = parseFloat(pitchSlider.value);
+
+            try {
+                responsiveVoice.speak(text, selectedVoice, {
+                    rate: rate,
+                    pitch: pitch,
+                    volume: 1,
+                    onstart: () => {
+                        statusDisplay.textContent = '▶️ Now reading...';
+                        statusDisplay.className = 'status playing';
+                        progressFill.style.width = '15%';
+                    },
+                    onend: () => {
+                        statusDisplay.textContent = '✅ Finished';
+                        statusDisplay.className = 'status';
+                        playBtn.disabled = false;
+                        stopBtn.disabled = true;
+                        isPlaying = false;
+                        progressFill.style.width = '100%';
+                    },
+                    onerror: () => {
+                        statusDisplay.textContent = '❌ Playback error';
+                        statusDisplay.className = 'status error';
+                        playBtn.disabled = false;
+                        stopBtn.disabled = true;
+                        isPlaying = false;
+                    }
+                });
+            } catch (error) {
+                statusDisplay.textContent = '❌ Error: ' + error.message;
+                statusDisplay.className = 'status error';
+                playBtn.disabled = false;
+                isPlaying = false;
+            }
         });
 
         // Initialize
-        initializeVoices();
         charCount.textContent = textInput.value.length;
     </script>
 </body>
