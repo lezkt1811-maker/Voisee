@@ -1,476 +1,363 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎙️ Free Voice Synthesis Studio</title>
-    <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>🎙️ Voisee — Free Book Reader</title>
+<link rel="icon" href="data:,">
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        body {
-            min-height: 100vh;
-            background: #0a0015;
-            background-image: 
-                radial-gradient(circle at 20% 50%, rgba(255, 0, 170, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(0, 255, 255, 0.1) 0%, transparent 50%);
-            font-family: 'Courier New', monospace;
-            padding: 1rem;
-            color: #00ffff;
-        }
+    :root {
+        color-scheme: dark;
+    }
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
+    body {
+        min-height: 100vh;
+        background: #0a0015;
+        background-image:
+            radial-gradient(circle at 20% 10%, rgba(255, 0, 170, 0.12) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(0, 255, 255, 0.1) 0%, transparent 50%);
+        font-family: 'Courier New', monospace;
+        padding: 0.75rem;
+        color: #00ffff;
+        padding-bottom: 3rem;
+    }
 
-        .header {
-            text-align: center;
-            margin-bottom: 1rem;
-        }
+    .container { max-width: 760px; margin: 0 auto; }
 
-        .header h1 {
-            font-size: 2rem;
-            margin-bottom: 0.2rem;
-            color: #ff00ff;
-            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
+    .header { text-align: center; margin-bottom: 1rem; }
 
-        .header p {
-            font-size: 0.9rem;
-            color: #00ffff;
-            text-shadow: 0 0 10px #00ffff;
-        }
+    .header h1 {
+        font-size: 1.6rem;
+        margin-bottom: 0.2rem;
+        color: #ff00ff;
+        text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
 
-        .card {
-            background: rgba(10, 0, 21, 0.9);
-            border: 2px solid #00ffff;
-            padding: 1.5rem;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), inset 0 0 20px rgba(255, 0, 170, 0.1);
-        }
+    .header p { font-size: 0.8rem; color: #00ffff; text-shadow: 0 0 8px #00ffff; }
 
-        .section {
-            margin-bottom: 1.5rem;
-        }
+    .card {
+        background: rgba(10, 0, 21, 0.9);
+        border: 2px solid #00ffff;
+        padding: 1.1rem;
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.25), inset 0 0 20px rgba(255, 0, 170, 0.08);
+        margin-bottom: 1rem;
+    }
 
-        .label {
-            display: block;
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: #ff00ff;
-            text-shadow: 0 0 5px #ff00ff;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+    .hidden { display: none !important; }
 
-        textarea {
-            width: 100%;
-            height: 300px;
-            padding: 1rem;
-            font-size: 1rem;
-            border: 2px solid #00ffff;
-            font-family: 'Courier New', monospace;
-            resize: vertical;
-            background: rgba(0, 20, 40, 0.6);
-            color: #00ff00;
-            box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.2);
-            outline: none;
-        }
+    .section { margin-bottom: 1.1rem; }
+    .section:last-child { margin-bottom: 0; }
 
-        textarea:focus {
-            border-color: #ff00ff;
-            box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.2), 0 0 20px rgba(255, 0, 170, 0.3);
-        }
+    .label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #ff00ff;
+        text-shadow: 0 0 5px #ff00ff;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
 
-        .char-count {
-            font-size: 0.8rem;
-            color: #00ffff;
-            margin-top: 0.3rem;
-            text-shadow: 0 0 5px #00ffff;
-        }
+    textarea {
+        width: 100%;
+        height: 260px;
+        padding: 0.9rem;
+        font-size: 0.95rem;
+        line-height: 1.4;
+        border: 2px solid #00ffff;
+        font-family: 'Courier New', monospace;
+        resize: vertical;
+        background: rgba(0, 20, 40, 0.6);
+        color: #00ff00;
+        box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.2);
+        outline: none;
+    }
 
-        .voice-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 0.6rem;
-            margin-bottom: 1rem;
-        }
+    textarea:focus {
+        border-color: #ff00ff;
+        box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.2), 0 0 20px rgba(255, 0, 170, 0.3);
+    }
 
-        .voice-btn {
-            padding: 0.7rem;
-            background: rgba(0, 255, 255, 0.1);
-            border: 2px solid #00ffff;
-            color: #00ffff;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            font-weight: bold;
-            font-family: 'Courier New', monospace;
-            text-shadow: 0 0 5px #00ffff;
-        }
+    .char-count { font-size: 0.75rem; color: #00ffff; margin-top: 0.3rem; opacity: 0.85; }
 
-        .voice-btn:hover {
-            background: rgba(255, 0, 170, 0.3);
-            border-color: #ff00ff;
-            color: #ff00ff;
-            text-shadow: 0 0 10px #ff00ff;
-            box-shadow: 0 0 10px rgba(255, 0, 170, 0.5);
-        }
+    .row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
 
-        .voice-btn.active {
-            background: rgba(255, 0, 170, 0.2);
-            border-color: #ff00ff;
-            box-shadow: 0 0 15px rgba(255, 0, 170, 0.6);
-        }
+    button {
+        padding: 0.7rem 0.9rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border: 2px solid #00ffff;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: #00ffff;
+        background: rgba(0, 255, 255, 0.08);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-family: 'Courier New', monospace;
+    }
+    button:hover:not(:disabled) {
+        background: rgba(255, 0, 170, 0.2);
+        border-color: #ff00ff;
+        color: #ff00ff;
+    }
+    button:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
+    .btn-primary { border-color: #00ff00; color: #00ff00; background: rgba(0,255,0,0.08); }
+    .btn-primary:hover:not(:disabled) { background: rgba(0,255,0,0.25); }
 
-        .control {
-            display: flex;
-            flex-direction: column;
-        }
+    .view-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.8rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .view-header h2 { font-size: 1rem; color: #ff00ff; text-shadow: 0 0 6px #ff00ff; }
 
-        .control label {
-            color: #ff00ff;
-            text-shadow: 0 0 5px #ff00ff;
-            margin-bottom: 0.3rem;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-        }
+    .status {
+        padding: 0.7rem;
+        background: rgba(0, 255, 255, 0.08);
+        color: #00ffff;
+        font-weight: 600;
+        text-align: center;
+        border: 2px solid #00ffff;
+        font-size: 0.8rem;
+        letter-spacing: 0.3px;
+        margin-bottom: 0.9rem;
+    }
+    .status-busy { border-color: #ffff00; color: #ffff00; }
+    .status-error { border-color: #ff0080; color: #ff0080; }
+    .status-ready { border-color: #00ff00; color: #00ff00; }
 
-        input[type="range"] {
-            width: 100%;
-            height: 8px;
-            cursor: pointer;
-            background: rgba(0, 255, 255, 0.1);
-            border: 1px solid #00ffff;
-            -webkit-appearance: none;
-            appearance: none;
-        }
+    /* Transcript */
+    .transcript {
+        max-height: 40vh;
+        overflow-y: auto;
+        padding: 0.8rem;
+        margin-bottom: 0.9rem;
+        border: 1px solid rgba(0,255,255,0.4);
+        background: rgba(0,10,20,0.5);
+        line-height: 1.7;
+        font-size: 0.95rem;
+        color: rgba(0,255,255,0.55);
+    }
+    .transcript .para { margin-bottom: 0.9rem; }
+    .transcript .para-current { color: rgba(255,255,255,0.9); }
+    .transcript .sentence { cursor: pointer; padding: 0.05rem 0.1rem; }
+    .transcript .sentence:hover { background: rgba(255,0,170,0.15); }
+    .transcript .sentence.active {
+        background: rgba(255, 0, 170, 0.35);
+        color: #fff;
+        box-shadow: 0 0 8px rgba(255,0,170,0.6);
+        border-radius: 2px;
+    }
 
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 16px;
-            height: 16px;
-            background: #ff00ff;
-            cursor: pointer;
-            border-radius: 50%;
-            box-shadow: 0 0 10px #ff00ff;
-        }
+    /* Progress */
+    .progress-row { margin-bottom: 0.9rem; }
+    input[type="range"] {
+        width: 100%;
+        height: 8px;
+        cursor: pointer;
+        background: rgba(0, 255, 255, 0.15);
+        border: 1px solid #00ffff;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 16px; height: 16px;
+        background: #ff00ff;
+        cursor: pointer;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #ff00ff;
+    }
+    input[type="range"]::-moz-range-thumb {
+        width: 16px; height: 16px;
+        background: #ff00ff;
+        cursor: pointer;
+        border-radius: 50%;
+        border: none;
+        box-shadow: 0 0 10px #ff00ff;
+    }
+    .progress-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.7rem;
+        color: rgba(0,255,255,0.8);
+        margin-top: 0.3rem;
+    }
 
-        input[type="range"]::-moz-range-thumb {
-            width: 16px;
-            height: 16px;
-            background: #ff00ff;
-            cursor: pointer;
-            border-radius: 50%;
-            border: none;
-            box-shadow: 0 0 10px #ff00ff;
-        }
+    /* Transport */
+    .transport {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.5rem;
+        margin-bottom: 0.9rem;
+    }
+    .transport button { padding: 0.65rem 0.3rem; font-size: 0.72rem; }
+    .transport .btn-playpause { grid-column: span 4; padding: 0.9rem; font-size: 1rem; border-color: #00ff00; color: #00ff00; background: rgba(0,255,0,0.08); }
+    .transport .btn-playpause:hover:not(:disabled) { background: rgba(0,255,0,0.25); }
+    .transport .btn-stop { border-color: #ff0080; color: #ff0080; background: rgba(255,0,128,0.08); }
+    .transport .btn-stop:hover:not(:disabled) { background: rgba(255,0,128,0.25); }
 
-        .value {
-            font-size: 0.8rem;
-            color: #00ffff;
-            margin-top: 0.2rem;
-            text-shadow: 0 0 5px #00ffff;
-        }
+    .speed-row { display: flex; align-items: center; gap: 0.7rem; }
+    .speed-row .value { min-width: 3.2rem; text-align: right; font-size: 0.85rem; }
 
-        .buttons {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
+    /* Voices */
+    .voice-grid { display: flex; flex-direction: column; gap: 0.4rem; max-height: 340px; overflow-y: auto; padding-right: 2px; }
+    .voice-row { display: flex; gap: 0.4rem; }
+    .voice-select {
+        flex: 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+        text-align: left;
+        padding: 0.55rem 0.7rem;
+        text-transform: none;
+        letter-spacing: 0;
+    }
+    .voice-row.active .voice-select {
+        border-color: #ff00ff;
+        background: rgba(255, 0, 170, 0.2);
+        box-shadow: 0 0 10px rgba(255, 0, 170, 0.4);
+    }
+    .voice-name { font-weight: 700; font-size: 0.85rem; }
+    .voice-meta { font-size: 0.68rem; opacity: 0.75; flex: 1; text-align: left; padding-left: 0.5rem; }
+    .voice-grade {
+        font-size: 0.7rem;
+        border: 1px solid currentColor;
+        padding: 0.05rem 0.35rem;
+        border-radius: 3px;
+    }
+    .voice-preview {
+        width: 2.6rem;
+        flex-shrink: 0;
+        font-size: 1rem;
+        padding: 0.4rem;
+    }
+    .voice-preview.loading { animation: pulse 0.8s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
 
-        button {
-            padding: 0.8rem;
-            font-size: 0.9rem;
-            font-weight: 600;
-            border: 2px solid #00ffff;
-            cursor: pointer;
-            transition: all 0.3s;
-            color: #00ffff;
-            background: rgba(0, 255, 255, 0.1);
-            text-shadow: 0 0 5px #00ffff;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-family: 'Courier New', monospace;
-        }
+    .checkbox-row { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; }
+    .checkbox-row input { width: 18px; height: 18px; }
 
-        .btn-play {
-            border-color: #00ff00;
-            color: #00ff00;
-            background: rgba(0, 255, 0, 0.1);
-            grid-column: span 2;
-        }
+    .engine-progress-outer {
+        height: 10px;
+        background: rgba(255,255,0,0.1);
+        border: 1px solid #ffff00;
+        margin-top: 0.5rem;
+        overflow: hidden;
+    }
+    .engine-progress-bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #ffff00, #ff8800);
+        transition: width 0.2s;
+    }
+    .engine-progress-label { font-size: 0.72rem; color: #ffff00; margin-top: 0.3rem; }
 
-        .btn-play:hover:not(:disabled) {
-            background: rgba(0, 255, 0, 0.3);
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
-        }
+    .note { font-size: 0.72rem; opacity: 0.7; margin-top: 0.4rem; line-height: 1.4; }
 
-        .btn-stop {
-            border-color: #ff0080;
-            color: #ff0080;
-            background: rgba(255, 0, 128, 0.1);
-            grid-column: span 2;
-        }
-
-        .btn-stop:hover:not(:disabled) {
-            background: rgba(255, 0, 128, 0.3);
-            box-shadow: 0 0 15px rgba(255, 0, 128, 0.6);
-        }
-
-        button:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-
-        .status {
-            padding: 1rem;
-            background: rgba(0, 255, 255, 0.1);
-            color: #00ffff;
-            font-weight: 600;
-            text-align: center;
-            border: 2px solid #00ffff;
-            text-shadow: 0 0 10px #00ffff;
-            text-transform: uppercase;
-            font-size: 0.9rem;
-            letter-spacing: 0.5px;
-            margin-bottom: 1rem;
-        }
-
-        .status.playing {
-            background: rgba(0, 255, 0, 0.1);
-            color: #00ff00;
-            border-color: #00ff00;
-            text-shadow: 0 0 10px #00ff00;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
-        }
-
-        .status.error {
-            background: rgba(255, 0, 128, 0.1);
-            color: #ff0080;
-            border-color: #ff0080;
-            text-shadow: 0 0 10px #ff0080;
-            box-shadow: 0 0 15px rgba(255, 0, 128, 0.3);
-        }
-
-        .progress {
-            width: 100%;
-            height: 8px;
-            background: rgba(0, 255, 255, 0.1);
-            border: 1px solid #00ffff;
-            margin-bottom: 1rem;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #00ffff, #ff00ff);
-            width: 0%;
-            transition: width 0.1s;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
-        }
-    </style>
+    footer.foot { text-align: center; font-size: 0.68rem; opacity: 0.55; margin-top: 1rem; padding-bottom: 1rem; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🎙️ FREE VOICE</h1>
-            <p>Natural TTS Reading - American Voices</p>
+<div class="container">
+    <div class="header">
+        <h1>🎙️ Voisee</h1>
+        <p>Free, offline-capable book reader — local AI voices, no account or API key</p>
+    </div>
+
+    <div id="statusDisplay" class="status status-ready">Loading…</div>
+
+    <!-- Text input -->
+    <div id="inputView" class="card">
+        <div class="section">
+            <label class="label">📝 Paste your book or text</label>
+            <textarea id="textInput" placeholder="Paste a chapter, article, or an entire novel here — there is no length limit."></textarea>
+            <div class="char-count">Characters: <span id="charCount">0</span></div>
         </div>
-
-        <div class="card">
-            <div class="section">
-                <label class="label">📝 Text</label>
-                <textarea id="textInput" placeholder="Paste your book chapter, article, or any text here...">Lilith smiled for the first time that day. Found you. Below them both, deep inside the planet, a current that had been silent for generations flickered awake. The ground trembled beneath their feet as ancient machinery groaned back to life. Somewhere in the darkness, something was waking up. Something that had been sleeping for ten thousand years. And it was hungry.</textarea>
-                <div class="char-count">Characters: <span id="charCount">0</span></div>
-            </div>
-
-            <div class="progress">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-
-            <div class="status" id="statusDisplay">Ready</div>
-
-            <div class="section">
-                <label class="label">🎤 Voice (American)</label>
-                <div class="voice-grid">
-                    <button class="voice-btn active" data-voice="US English Female">Female - Natural</button>
-                    <button class="voice-btn" data-voice="US English Male">Male - Deep</button>
-                    <button class="voice-btn" data-voice="Google US English Female">Google Female</button>
-                    <button class="voice-btn" data-voice="Google US English Male">Google Male</button>
-                    <button class="voice-btn" data-voice="Zira">Female - Zira</button>
-                    <button class="voice-btn" data-voice="David">Male - David</button>
-                </div>
-            </div>
-
-            <div class="section">
-                <label class="label">⚙️ Settings</label>
-                <div class="controls">
-                    <div class="control">
-                        <label>Speed</label>
-                        <input type="range" id="speedSlider" min="0.5" max="2" value="1" step="0.1">
-                        <div class="value"><span id="speedValue">1.0</span>x</div>
-                    </div>
-                    <div class="control">
-                        <label>Pitch</label>
-                        <input type="range" id="pitchSlider" min="0.5" max="2" value="1" step="0.1">
-                        <div class="value"><span id="pitchValue">1.0</span>x</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="buttons">
-                <button class="btn-play" id="playBtn">▶️ Play</button>
-                <button class="btn-stop" id="stopBtn" disabled>⏹️ Stop</button>
-            </div>
+        <div class="row">
+            <button class="btn-primary" id="loadBookBtn">📖 Load Book</button>
+            <button id="cancelNewTextBtn">Cancel</button>
         </div>
     </div>
 
-    <script>
-        let selectedVoice = 'US English Female';
-        let isPlaying = false;
+    <!-- Reader -->
+    <div id="readerView" class="card hidden">
+        <div class="view-header">
+            <h2>📖 Now Reading</h2>
+            <button id="newTextBtn">✏️ New Text</button>
+        </div>
 
-        const textInput = document.getElementById('textInput');
-        const charCount = document.getElementById('charCount');
-        const statusDisplay = document.getElementById('statusDisplay');
-        const progressFill = document.getElementById('progressFill');
-        const playBtn = document.getElementById('playBtn');
-        const stopBtn = document.getElementById('stopBtn');
-        const speedSlider = document.getElementById('speedSlider');
-        const speedValue = document.getElementById('speedValue');
-        const pitchSlider = document.getElementById('pitchSlider');
-        const pitchValue = document.getElementById('pitchValue');
+        <div id="transcript" class="transcript"></div>
 
-        // Wait for ResponsiveVoice to load
-        if (typeof responsiveVoice !== 'undefined') {
-            responsiveVoice.OnFinishedCallback = function() {
-                if (!isPlaying) return;
-            };
-        }
+        <div class="progress-row">
+            <input type="range" id="progressSlider" min="0" max="1000" value="0">
+            <div class="progress-meta">
+                <span id="sentenceLabel">Sentence 0 / 0</span>
+                <span id="timeLabel">0:00</span>
+            </div>
+        </div>
 
-        // Voice selection
-        document.querySelectorAll('.voice-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                document.querySelectorAll('.voice-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                selectedVoice = btn.dataset.voice;
-                statusDisplay.textContent = '✓ Voice: ' + btn.textContent.trim();
-                statusDisplay.className = 'status';
-            });
-        });
+        <div class="transport">
+            <button class="btn-playpause" id="playPauseBtn">▶ Play</button>
+            <button id="prevParaBtn" title="Previous paragraph">⏮ Para</button>
+            <button id="prevSentenceBtn" title="Previous sentence">⏮ Sent</button>
+            <button id="rewindBtn" title="Rewind 10s">⏪ 10s</button>
+            <button id="forwardBtn" title="Skip 10s">10s ⏩</button>
+            <button id="nextSentenceBtn" title="Next sentence">Sent ⏭</button>
+            <button id="nextParaBtn" title="Next paragraph">Para ⏭</button>
+            <button class="btn-stop" id="stopBtn" title="Stop">⏹ Stop</button>
+        </div>
+    </div>
 
-        // Sliders
-        speedSlider.addEventListener('input', (e) => {
-            speedValue.textContent = parseFloat(e.target.value).toFixed(1);
-        });
+    <!-- Settings / voices -->
+    <div class="card">
+        <div class="section">
+            <label class="label">⚙️ Playback speed</label>
+            <div class="speed-row">
+                <input type="range" id="rateSlider" min="0.75" max="2" step="0.05" value="1">
+                <span class="value"><span id="rateLabel">1.00x</span></span>
+            </div>
+        </div>
 
-        pitchSlider.addEventListener('input', (e) => {
-            pitchValue.textContent = parseFloat(e.target.value).toFixed(1);
-        });
+        <div class="section">
+            <label class="label">🎤 Voice (tap 🔊 to preview)</label>
+            <div id="voiceGrid" class="voice-grid"></div>
+        </div>
 
-        // Character count
-        textInput.addEventListener('input', (e) => {
-            charCount.textContent = e.target.value.length;
-        });
+        <div class="section">
+            <label class="label">🔧 Voice engine</label>
+            <div class="checkbox-row">
+                <input type="checkbox" id="lightweightCheckbox">
+                <label for="lightweightCheckbox">Prefer lightweight engine (smaller ~90MB download, works on every device, slightly slower)</label>
+            </div>
+            <div id="engineProgress" class="engine-progress-outer hidden">
+                <div id="engineProgressBar" class="engine-progress-bar"></div>
+            </div>
+            <div id="engineProgressLabel" class="engine-progress-label"></div>
+            <div id="engineRetry" class="hidden" style="margin-top:0.5rem;">
+                <button id="engineRetryBtn">🔄 Retry loading voice engine</button>
+            </div>
+            <p class="note">Runs 100% locally in your browser using Kokoro-82M (WebGPU when available, WebAssembly otherwise). The model downloads once from Hugging Face's free public model hub and is then cached by your browser for offline reuse. No account, API key, subscription, or per-character quota — ever.</p>
+        </div>
+    </div>
 
-        // Stop button
-        stopBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (typeof responsiveVoice !== 'undefined') {
-                responsiveVoice.cancel();
-            }
-            isPlaying = false;
-            playBtn.disabled = false;
-            stopBtn.disabled = true;
-            statusDisplay.textContent = '⏹️ Stopped';
-            statusDisplay.className = 'status';
-            progressFill.style.width = '0%';
-        });
+    <footer class="foot">Voisee · local, private, unlimited text-to-speech</footer>
+</div>
 
-        // Play button
-        playBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            
-            const text = textInput.value.trim();
-            if (!text) {
-                statusDisplay.textContent = '❌ Please enter text';
-                statusDisplay.className = 'status error';
-                return;
-            }
+<audio id="player" preload="auto"></audio>
+<audio id="previewPlayer" preload="auto"></audio>
 
-            if (isPlaying) return;
-
-            if (typeof responsiveVoice === 'undefined') {
-                statusDisplay.textContent = '⏳ Loading voices...';
-                statusDisplay.className = 'status playing';
-                setTimeout(() => playBtn.click(), 2000);
-                return;
-            }
-
-            isPlaying = true;
-            playBtn.disabled = true;
-            stopBtn.disabled = false;
-            statusDisplay.textContent = '▶️ Reading...';
-            statusDisplay.className = 'status playing';
-            progressFill.style.width = '10%';
-
-            const rate = parseFloat(speedSlider.value);
-            const pitch = parseFloat(pitchSlider.value);
-
-            try {
-                responsiveVoice.speak(text, selectedVoice, {
-                    rate: rate,
-                    pitch: pitch,
-                    volume: 1,
-                    onstart: () => {
-                        statusDisplay.textContent = '▶️ Now reading...';
-                        statusDisplay.className = 'status playing';
-                        progressFill.style.width = '15%';
-                    },
-                    onend: () => {
-                        statusDisplay.textContent = '✅ Finished';
-                        statusDisplay.className = 'status';
-                        playBtn.disabled = false;
-                        stopBtn.disabled = true;
-                        isPlaying = false;
-                        progressFill.style.width = '100%';
-                    },
-                    onerror: () => {
-                        statusDisplay.textContent = '❌ Playback error';
-                        statusDisplay.className = 'status error';
-                        playBtn.disabled = false;
-                        stopBtn.disabled = true;
-                        isPlaying = false;
-                    }
-                });
-            } catch (error) {
-                statusDisplay.textContent = '❌ Error: ' + error.message;
-                statusDisplay.className = 'status error';
-                playBtn.disabled = false;
-                isPlaying = false;
-            }
-        });
-
-        // Initialize
-        charCount.textContent = textInput.value.length;
-    </script>
+<script type="module" src="./js/app.js"></script>
 </body>
 </html>
