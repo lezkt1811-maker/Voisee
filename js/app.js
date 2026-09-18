@@ -398,7 +398,10 @@ function setVoice(id) {
   state.pendingIndices.clear();
   worker.postMessage({ type: 'clearChunkQueue' });
   updateVoiceUI();
-  scheduleLookahead();
+  // Only re-request lookahead audio if playback has already started (and so
+  // the engine is already loading/loaded) - just picking a voice shouldn't
+  // by itself trigger the one-time engine download.
+  if (workerInitStarted) scheduleLookahead();
 }
 
 // ---------------------------------------------------------------------------
@@ -478,11 +481,13 @@ async function loadBookFromText(text, { resume = true } = {}) {
   updateTransportUI();
   setStatus(
     startIndex > 0
-      ? `Resumed at sentence ${startIndex + 1} of ${sentences.length}.`
-      : `Loaded ${sentences.length} sentences across ${paragraphs.length} paragraphs. Ready to read.`,
+      ? `Resumed at sentence ${startIndex + 1} of ${sentences.length}. Tap Play to continue.`
+      : `Loaded ${sentences.length} sentences across ${paragraphs.length} paragraphs. Tap Play to begin.`,
     'ready'
   );
-  scheduleLookahead();
+  // Deliberately not calling scheduleLookahead() here: it triggers the local
+  // voice engine's (large, one-time) download, which should only start once
+  // the reader explicitly asks for audio (Play or a voice preview).
 }
 
 function persistPositionThrottled(immediate = false) {
