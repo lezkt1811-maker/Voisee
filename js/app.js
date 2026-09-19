@@ -50,11 +50,11 @@ function createWorker() {
 function ensureWorkerInit() {
   if (workerInitStarted) return;
   workerInitStarted = true;
-  const forceWasm = !!loadSettings().lightweightMode;
-  els.lightweightCheckbox.disabled = true;
+  const tryWebGpu = !!loadSettings().tryWebGpu;
+  els.webgpuCheckbox.disabled = true;
   setStatus('Loading local voice engine (first time only — will be cached)…', 'busy');
   els.engineProgress.classList.remove('hidden');
-  worker.postMessage({ type: 'init', forceWasm });
+  worker.postMessage({ type: 'init', tryWebGpu });
 }
 
 function retryEngine() {
@@ -535,7 +535,7 @@ function cacheEls() {
     'nextParaBtn',
     'rateSlider',
     'rateLabel',
-    'lightweightCheckbox',
+    'webgpuCheckbox',
     'voiceGrid',
     'player',
     'previewPlayer',
@@ -718,8 +718,8 @@ function wireUI() {
 
   els.rateSlider.addEventListener('input', (e) => setRate(parseFloat(e.target.value)));
 
-  els.lightweightCheckbox.addEventListener('change', (e) => {
-    saveSettings({ lightweightMode: e.target.checked });
+  els.webgpuCheckbox.addEventListener('change', (e) => {
+    saveSettings({ tryWebGpu: e.target.checked });
   });
 
   els.engineRetryBtn.addEventListener('click', retryEngine);
@@ -764,7 +764,7 @@ async function init() {
   state.rate = settings.rate || 1;
   els.rateSlider.value = String(state.rate);
   els.rateLabel.textContent = `${state.rate.toFixed(2)}x`;
-  els.lightweightCheckbox.checked = !!settings.lightweightMode;
+  els.webgpuCheckbox.checked = !!settings.tryWebGpu;
 
   renderVoiceGrid();
   updateTransportUI();

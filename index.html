@@ -351,8 +351,8 @@
         <div class="section">
             <label class="label">🔧 Voice engine</label>
             <div class="checkbox-row">
-                <input type="checkbox" id="lightweightCheckbox">
-                <label for="lightweightCheckbox">Prefer lightweight engine (smaller ~90MB download, works on every device, slightly slower)</label>
+                <input type="checkbox" id="webgpuCheckbox">
+                <label for="webgpuCheckbox">Try experimental WebGPU mode (larger ~330MB download, may run faster, but can sound distorted on some phones — leave unchecked for reliable audio)</label>
             </div>
             <div id="engineProgress" class="engine-progress-outer hidden">
                 <div id="engineProgressBar" class="engine-progress-bar"></div>
@@ -361,7 +361,7 @@
             <div id="engineRetry" class="hidden" style="margin-top:0.5rem;">
                 <button id="engineRetryBtn">🔄 Retry loading voice engine</button>
             </div>
-            <p class="note">Runs 100% locally in your browser using Kokoro-82M (WebGPU when available, WebAssembly otherwise). The model downloads once from Hugging Face's free public model hub and is then cached by your browser for offline reuse. No account, API key, subscription, or per-character quota — ever.</p>
+            <p class="note">Runs 100% locally in your browser using Kokoro-82M (WebAssembly by default, for reliable audio on every device). The model downloads once — about 90MB — from Hugging Face's free public model hub, then is cached by your browser for offline reuse. No account, API key, subscription, or per-character quota — ever.</p>
         </div>
     </div>
 

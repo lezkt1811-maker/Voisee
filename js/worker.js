@@ -1,7 +1,13 @@
-// TTS worker: loads Kokoro-82M once (WebGPU when available, WASM fallback)
-// and generates audio for individual text chunks off the main thread so the
-// UI stays responsive while a book is being read. Runs entirely locally in
-// the browser - no server, API key, or account involved.
+// TTS worker: loads Kokoro-82M once and generates audio for individual text
+// chunks off the main thread so the UI stays responsive while a book is
+// being read. Runs entirely locally in the browser - no server, API key, or
+// account involved.
+//
+// Defaults to the WebAssembly backend. WebGPU is opt-in only: this model's
+// vocoder relies on signal-processing ops that some phones' WebGPU
+// implementations execute incorrectly today, producing garbled/high-pitched
+// audio instead of speech (with no error thrown, so we can't auto-detect
+// and fall back). WASM is slower but reliably correct everywhere.
 
 import { KokoroTTS } from '../vendor/kokoro.web.js';
 
@@ -22,7 +28,7 @@ self.onmessage = (e) => {
   const msg = e.data;
   switch (msg.type) {
     case 'init':
-      initModel(!!msg.forceWasm);
+      initModel(!!msg.tryWebGpu);
       break;
     case 'generate':
       if (msg.kind === 'preview') {
@@ -40,8 +46,8 @@ self.onmessage = (e) => {
   }
 };
 
-async function initModel(forceWasm) {
-  const hasWebGPU = !forceWasm && typeof navigator !== 'undefined' && !!navigator.gpu;
+async function initModel(tryWebGpu) {
+  const hasWebGPU = tryWebGpu && typeof navigator !== 'undefined' && !!navigator.gpu;
   const attempts = hasWebGPU
     ? [
         { device: 'webgpu', dtype: 'fp32' },
