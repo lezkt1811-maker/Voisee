@@ -48,12 +48,14 @@ self.onmessage = (e) => {
 
 async function initModel(tryWebGpu) {
   const hasWebGPU = tryWebGpu && typeof navigator !== 'undefined' && !!navigator.gpu;
-  const attempts = hasWebGPU
-    ? [
-        { device: 'webgpu', dtype: 'fp32' },
-        { device: 'wasm', dtype: 'q8' },
-      ]
-    : [{ device: 'wasm', dtype: 'q8' }];
+  // Try the lighter/faster q4 quantization first (smaller, less compute per
+  // chunk); fall back to q8 if that variant isn't published for this model
+  // or fails to load for any reason.
+  const wasmAttempts = [
+    { device: 'wasm', dtype: 'q4' },
+    { device: 'wasm', dtype: 'q8' },
+  ];
+  const attempts = hasWebGPU ? [{ device: 'webgpu', dtype: 'fp32' }, ...wasmAttempts] : wasmAttempts;
 
   let lastErr = null;
   for (const attempt of attempts) {
