@@ -191,7 +191,7 @@ function handlePreviewError(msg) {
 // ---------------------------------------------------------------------------
 // Generation / cache management
 // ---------------------------------------------------------------------------
-const LOOKAHEAD = 6;
+const LOOKAHEAD = 10;
 const KEEP_BEHIND = 15;
 const KEEP_AHEAD = 40;
 
