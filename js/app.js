@@ -31,6 +31,9 @@ let previewSeq = 0;
 let workerInitStarted = false;
 let isDraggingSlider = false;
 let saveTimer = null;
+let lastWorkerActivity = Date.now();
+let watchdogTimer = null;
+let watchdogRestarting = false;
 
 // ---------------------------------------------------------------------------
 // Worker
@@ -79,7 +82,36 @@ function retryEngine() {
   scheduleLookahead();
 }
 
+// A generation call can occasionally stall completely - never resolving or
+// rejecting - with no way to distinguish that from "just slow" in the code
+// that's waiting on it. Left unhandled, that hangs the whole book forever
+// with no feedback (reported symptom: status frozen on "Generating audio
+// for sentence N", Play button never re-engages). Detect the silence and
+// recover by fully restarting the worker, rather than trying to guess
+// which in-flight call is stuck and cancel just that one.
+function markWorkerActivity() {
+  lastWorkerActivity = Date.now();
+  watchdogRestarting = false;
+}
+
+const WATCHDOG_STALL_MS = 45000;
+const WATCHDOG_CHECK_MS = 5000;
+
+function startWatchdog() {
+  if (watchdogTimer) return;
+  watchdogTimer = setInterval(() => {
+    if (watchdogRestarting) return;
+    const waitingOnSomething = state.pendingIndices.size > 0 || previewJobs.size > 0;
+    if (waitingOnSomething && Date.now() - lastWorkerActivity > WATCHDOG_STALL_MS) {
+      watchdogRestarting = true;
+      setStatus('Generation stalled — restarting the voice engine and retrying…', 'error');
+      retryEngine();
+    }
+  }, WATCHDOG_CHECK_MS);
+}
+
 function handleWorkerMessage(e) {
+  markWorkerActivity();
   const msg = e.data;
   switch (msg.type) {
     case 'progress':
@@ -766,6 +798,7 @@ function wireUI() {
 async function init() {
   cacheEls();
   wireUI();
+  startWatchdog();
 
   const settings = loadSettings();
   state.voice = voiceById(settings.voice || DEFAULT_VOICE).id;
