@@ -243,6 +243,25 @@ function waitForChunk(index) {
 // ---------------------------------------------------------------------------
 // Playback engine
 // ---------------------------------------------------------------------------
+// Browsers only allow audio.play() to start playback without a fresh user
+// tap for a short window after a click. playFrom() awaits chunk generation
+// first, which can easily take longer than that window (especially the
+// first chunk, or the very first use before the engine has warmed up) - so
+// play() can be silently blocked by autoplay policy. Surface that clearly
+// instead of failing silently: the chunk is already cached at that point,
+// so tapping Play again immediately succeeds (it's a fresh gesture).
+async function attemptPlay() {
+  try {
+    await els.player.play();
+    state.isPlaying = true;
+    return true;
+  } catch (err) {
+    state.isPlaying = false;
+    setStatus('Audio is ready — tap ▶ Play once more to start it (your browser needs a fresh tap).', 'ready');
+    return false;
+  }
+}
+
 async function playFrom(index, offset = 0, autoplay = true) {
   if (!state.sentences.length) return;
   index = Math.max(0, Math.min(state.sentences.length - 1, index));
@@ -272,12 +291,7 @@ async function playFrom(index, offset = 0, autoplay = true) {
     /* metadata not ready yet on some browsers; ignore */
   }
   if (autoplay) {
-    try {
-      await els.player.play();
-      state.isPlaying = true;
-    } catch (err) {
-      state.isPlaying = false;
-    }
+    await attemptPlay();
   }
   updateTransportUI();
   updateProgressUI();
@@ -303,13 +317,7 @@ function togglePlayPause() {
     persistPositionThrottled(true);
   } else if (els.player.src && !els.player.ended) {
     els.player.playbackRate = state.rate;
-    els.player
-      .play()
-      .then(() => {
-        state.isPlaying = true;
-        updateTransportUI();
-      })
-      .catch(() => {});
+    attemptPlay().then(() => updateTransportUI());
   } else {
     playFrom(state.playIndex, 0, true);
   }
