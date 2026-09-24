@@ -5,6 +5,16 @@
 
 const MAX_CHUNK_LEN = 400;
 
+// Generation time scales with chunk length, and on a phone's CPU (WASM) even
+// a single long sentence can take a noticeably long time to synthesize.
+// Beyond safety (MAX_CHUNK_LEN), we also proactively split long sentences at
+// natural clause boundaries so every unit sent to the model stays short -
+// this cuts both time-to-first-audio and the risk of playback catching up
+// to generation mid-book. Costs a little prosody naturalness (more, shorter
+// pauses) in exchange for speed.
+const SOFT_SPLIT_LEN = 120;
+const CLAUSE_BREAK_REGEX = /[,;:—–]\s+/g; // comma/semicolon/colon/em-dash/en-dash + space
+
 let segmenter = null;
 if (typeof Intl !== 'undefined' && typeof Intl.Segmenter === 'function') {
   try {
@@ -72,6 +82,35 @@ function splitSentences(rawParagraph) {
   return splitSentencesRegex(paragraph);
 }
 
+// Splits a sentence longer than SOFT_SPLIT_LEN at clause punctuation
+// (comma, semicolon, colon, dash) where possible, falling back to the
+// nearest word boundary. Keeps generation units small and fast.
+function softSplitSentence(sentence) {
+  if (sentence.length <= SOFT_SPLIT_LEN) return [sentence];
+  const parts = [];
+  let remaining = sentence;
+  while (remaining.length > SOFT_SPLIT_LEN) {
+    const searchWindow = remaining.slice(0, SOFT_SPLIT_LEN + 40);
+    let lastMatch = null;
+    CLAUSE_BREAK_REGEX.lastIndex = 0;
+    let m;
+    while ((m = CLAUSE_BREAK_REGEX.exec(searchWindow))) {
+      lastMatch = m;
+    }
+    let cut;
+    if (lastMatch && lastMatch.index > 20) {
+      cut = lastMatch.index + lastMatch[0].length;
+    } else {
+      cut = remaining.lastIndexOf(' ', SOFT_SPLIT_LEN);
+      if (cut <= 20) cut = SOFT_SPLIT_LEN;
+    }
+    parts.push(remaining.slice(0, cut).trim());
+    remaining = remaining.slice(cut).trim();
+  }
+  if (remaining) parts.push(remaining);
+  return parts;
+}
+
 // Hard-splits a sentence that has no usable punctuation and exceeds the safe
 // chunk length (e.g. a huge run-on line) at the nearest word boundary.
 function hardSplitLong(str) {
@@ -94,12 +133,14 @@ export function buildSentences(text) {
   paragraphs.forEach((para, paraIndex) => {
     const raws = splitSentences(para);
     for (const raw of raws) {
-      if (raw.length > MAX_CHUNK_LEN) {
-        for (const part of hardSplitLong(raw)) {
-          sentences.push({ text: part, paraIndex });
+      for (const piece of softSplitSentence(raw)) {
+        if (piece.length > MAX_CHUNK_LEN) {
+          for (const part of hardSplitLong(piece)) {
+            sentences.push({ text: part, paraIndex });
+          }
+        } else {
+          sentences.push({ text: piece, paraIndex });
         }
-      } else {
-        sentences.push({ text: raw, paraIndex });
       }
     }
   });
