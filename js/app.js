@@ -654,6 +654,8 @@ function cacheEls() {
     'readerView',
     'newTextBtn',
     'cancelNewTextBtn',
+    'clearTextBtn',
+    'refreshPageBtn',
     'transcript',
     'statusDisplay',
     'progressSlider',
@@ -843,6 +845,12 @@ function wireUI() {
     showInputView();
   });
   els.cancelNewTextBtn.addEventListener('click', () => showReaderView());
+  els.clearTextBtn.addEventListener('click', () => {
+    els.textInput.value = '';
+    els.charCount.textContent = '0';
+    els.textInput.focus();
+  });
+  els.refreshPageBtn.addEventListener('click', () => window.location.reload());
 
   els.playPauseBtn.addEventListener('click', togglePlayPause);
   els.stopBtn.addEventListener('click', stopPlayback);
