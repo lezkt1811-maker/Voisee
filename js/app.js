@@ -165,6 +165,17 @@ function handleChunkResult(msg) {
   if (index === undefined) return;
   state.pendingIndices.delete(index);
   if (state.latestRequestIdForIndex.get(index) !== msg.id) return; // stale, superseded
+
+  // The model occasionally generates genuine silence for a chunk (a real,
+  // fixable bug) rather than speech. Never play that - it's indistinguishable
+  // from "no sound" for a totally different reason (a muted tab, zero device
+  // volume) and would make real bugs look like device problems. Treat it as
+  // a failure and retry/skip through the same path as a generation error.
+  if (msg.looksSilent) {
+    handleChunkFailure(index, 'generated silent audio');
+    return;
+  }
+
   const blob = new Blob([msg.wavBuffer], { type: 'audio/wav' });
   const url = URL.createObjectURL(blob);
   const entry = { url, duration: msg.duration };
@@ -185,13 +196,20 @@ function handleChunkError(msg) {
   state.jobIndexById.delete(msg.id);
   if (index === undefined) return;
   state.pendingIndices.delete(index);
+  handleChunkFailure(index, msg.message);
+}
+
+function handleChunkFailure(index, reason) {
   const retries = (state.retryCount.get(index) || 0) + 1;
   state.retryCount.set(index, retries);
   if (retries <= 3) {
-    setStatus(`Retrying sentence ${index + 1}…`, 'error');
+    setStatus(`Retrying sentence ${index + 1} (${reason})…`, 'error');
     setTimeout(() => ensureGenerated(index), 1200);
   } else {
-    setStatus(`Skipped sentence ${index + 1} after repeated errors: ${msg.message}`, 'error');
+    setStatus(
+      `Skipped sentence ${index + 1} after repeated failures (${reason}). If every sentence plays silently like this, it's likely a device/browser volume issue, not the app — if only occasional sentences skip, try a different voice.`,
+      'error'
+    );
     const waiters = chunkWaiters.get(index);
     if (waiters) {
       chunkWaiters.delete(index);
@@ -204,13 +222,28 @@ function handleChunkError(msg) {
 function handlePreviewResult(msg) {
   const job = previewJobs.get(msg.id);
   previewJobs.delete(msg.id);
+  if (job) job.btnEl.classList.remove('loading');
+
+  if (msg.looksSilent) {
+    setStatus(
+      `The "${msg.voice}" preview generated as silent audio (not a volume problem — the voice engine produced no actual sound for this text). Try a different voice, or retry the preview.`,
+      'error'
+    );
+    return;
+  }
+
   const blob = new Blob([msg.wavBuffer], { type: 'audio/wav' });
   const url = URL.createObjectURL(blob);
   previewCache.set(msg.voice, { url, duration: msg.duration });
-  if (job) job.btnEl.classList.remove('loading');
   els.previewPlayer.src = url;
   els.previewPlayer.playbackRate = 1;
-  els.previewPlayer.play().catch(() => {});
+  els.previewPlayer
+    .play()
+    .then(() => {
+      schedulePreviewSilentCheck();
+      setStatus('Playing voice preview — if you hear nothing now, the audio itself is real; check your device volume and that this tab isn\'t muted.', 'ready');
+    })
+    .catch(() => setStatus('Preview is ready — tap 🔊 once more to play it (your browser needs a fresh tap).', 'ready'));
 }
 
 function handlePreviewError(msg) {
@@ -294,6 +327,39 @@ async function attemptPlay() {
   }
 }
 
+// play() resolving only means the browser accepted the request to play -
+// it does NOT guarantee any sound actually reaches the speaker (a muted
+// tab, a phone's media volume at zero, or a routed-but-silent output
+// device all look identical from here: no error, just silence). That's a
+// real reported symptom distinct from both the autoplay-rejection case
+// above and the generation-stall case the watchdog handles. Detect it by
+// checking, a few seconds after playback supposedly starts, whether
+// currentTime has actually moved - and if not, say so on-screen instead
+// of leaving the reader guessing.
+let playerSilentCheckTimer = null;
+let previewSilentCheckTimer = null;
+const SILENT_PLAYBACK_MESSAGE =
+  'Playback seems stuck — the audio started but is not progressing at all. This looks like a playback glitch rather than a volume problem (the audio itself was already confirmed to have real content). Try tapping Play again, or reload the page.';
+
+function scheduleSilentPlaybackCheck(forIndex) {
+  clearTimeout(playerSilentCheckTimer);
+  const startedAt = els.player.currentTime;
+  playerSilentCheckTimer = setTimeout(() => {
+    if (state.playIndex !== forIndex || !state.isPlaying) return; // moved on / paused - nothing wrong
+    if (els.player.paused || els.player.ended) return;
+    if (els.player.currentTime <= startedAt + 0.05) setStatus(SILENT_PLAYBACK_MESSAGE, 'error');
+  }, 3000);
+}
+
+function schedulePreviewSilentCheck() {
+  clearTimeout(previewSilentCheckTimer);
+  const startedAt = els.previewPlayer.currentTime;
+  previewSilentCheckTimer = setTimeout(() => {
+    if (els.previewPlayer.paused || els.previewPlayer.ended) return;
+    if (els.previewPlayer.currentTime <= startedAt + 0.05) setStatus(SILENT_PLAYBACK_MESSAGE, 'error');
+  }, 3000);
+}
+
 async function playFrom(index, offset = 0, autoplay = true) {
   if (!state.sentences.length) return;
   index = Math.max(0, Math.min(state.sentences.length - 1, index));
@@ -323,7 +389,8 @@ async function playFrom(index, offset = 0, autoplay = true) {
     /* metadata not ready yet on some browsers; ignore */
   }
   if (autoplay) {
-    await attemptPlay();
+    const started = await attemptPlay();
+    if (started) scheduleSilentPlaybackCheck(index);
   }
   updateTransportUI();
   updateProgressUI();
@@ -349,7 +416,10 @@ function togglePlayPause() {
     persistPositionThrottled(true);
   } else if (els.player.src && !els.player.ended) {
     els.player.playbackRate = state.rate;
-    attemptPlay().then(() => updateTransportUI());
+    attemptPlay().then((started) => {
+      if (started) scheduleSilentPlaybackCheck(state.playIndex);
+      updateTransportUI();
+    });
   } else {
     playFrom(state.playIndex, 0, true);
   }
@@ -721,7 +791,10 @@ function playPreview(voiceId, btnEl) {
   if (cached) {
     els.previewPlayer.src = cached.url;
     els.previewPlayer.playbackRate = 1;
-    els.previewPlayer.play().catch(() => {});
+    els.previewPlayer
+      .play()
+      .then(() => schedulePreviewSilentCheck())
+      .catch(() => setStatus('Preview is ready — tap 🔊 once more to play it (your browser needs a fresh tap).', 'ready'));
     return;
   }
   btnEl.classList.add('loading');

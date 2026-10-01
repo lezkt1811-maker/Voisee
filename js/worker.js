@@ -100,9 +100,28 @@ async function processQueue() {
   }
 }
 
+// "No sound" can mean the model genuinely generated silence (a real,
+// fixable bug) or that real audio isn't reaching the listener's ears (a
+// device/OS/browser issue outside the app's control) - and those need
+// completely different responses. We have the raw samples right here
+// before WAV-encoding them, so check for actual signal directly instead
+// of guessing from playback behavior on the main thread.
+const SILENCE_PEAK_THRESHOLD = 0.005;
+function peakAmplitude(samples) {
+  let peak = 0;
+  // Sampling every 8th value is plenty to detect genuine silence vs. real
+  // signal without scanning the whole (possibly large) array.
+  for (let i = 0; i < samples.length; i += 8) {
+    const v = Math.abs(samples[i]);
+    if (v > peak) peak = v;
+  }
+  return peak;
+}
+
 async function runJob(job) {
   try {
     const audio = await tts.generate(job.text, { voice: job.voice, speed: 1 });
+    const looksSilent = peakAmplitude(audio.audio) < SILENCE_PEAK_THRESHOLD;
     const wavBuffer = audio.toWav();
     const duration = audio.audio.length / audio.sampling_rate;
     self.postMessage(
@@ -112,6 +131,7 @@ async function runJob(job) {
         kind: job.kind,
         voice: job.voice,
         duration,
+        looksSilent,
         wavBuffer,
       },
       [wavBuffer]
