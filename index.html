@@ -5,7 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>🎙️ Voisee — Free Book Reader</title>
 <link rel="icon" href="data:,">
-<script src="./coi-serviceworker.js"></script>
+<script>
+  // Multi-threaded WASM (unlocked by the coi-serviceworker trick, which was
+  // used for a speed optimization) turned out to be unreliable on some
+  // Android Chrome builds - causing audio generation to hang indefinitely
+  // with no error, reported repeatedly. Reliability matters more than speed
+  // here, so that's reverted in favor of plain single-threaded WASM, which
+  // needs no service worker at all. This cleans up any copy of it a
+  // previous visit may have already installed, so it stops intercepting
+  // requests and the page goes back to normal (non-isolated) operation.
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((regs) => {
+      for (const reg of regs) {
+        const url = (reg.active || reg.installing || reg.waiting)?.scriptURL || '';
+        if (url.includes('coi-serviceworker')) reg.unregister();
+      }
+    }).catch(() => {});
+  }
+</script>
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
