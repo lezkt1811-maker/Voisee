@@ -60,7 +60,7 @@ function ensureWorkerInit() {
   worker.postMessage({ type: 'init', tryWebGpu });
 }
 
-function retryEngine() {
+function retryEngine(isManual = false) {
   try {
     worker.terminate();
   } catch (err) {
@@ -69,6 +69,12 @@ function retryEngine() {
   worker = createWorker();
   workerInitStarted = false;
   els.engineRetry.classList.add('hidden');
+  // A manual tap on Retry (as opposed to the watchdog's own auto-restart) is
+  // a fresh start - don't let it stay capped from earlier auto-restarts.
+  if (isManual) {
+    consecutiveWatchdogRestarts = 0;
+    watchdogRestarting = false;
+  }
 
   // Any chunk/preview jobs queued on the terminated worker are lost - drop the
   // "pending" markers so they get re-requested fresh against the new worker.
@@ -96,6 +102,8 @@ function markWorkerActivity() {
 
 const WATCHDOG_STALL_MS = 45000;
 const WATCHDOG_CHECK_MS = 5000;
+const MAX_CONSECUTIVE_WATCHDOG_RESTARTS = 3;
+let consecutiveWatchdogRestarts = 0;
 
 function startWatchdog() {
   if (watchdogTimer) return;
@@ -104,7 +112,21 @@ function startWatchdog() {
     const waitingOnSomething = state.pendingIndices.size > 0 || previewJobs.size > 0;
     if (waitingOnSomething && Date.now() - lastWorkerActivity > WATCHDOG_STALL_MS) {
       watchdogRestarting = true;
-      setStatus('Generation stalled — restarting the voice engine and retrying…', 'error');
+      consecutiveWatchdogRestarts++;
+      if (consecutiveWatchdogRestarts > MAX_CONSECUTIVE_WATCHDOG_RESTARTS) {
+        // Restarting hasn't helped several times in a row - stop looping
+        // silently forever and say so plainly instead.
+        setStatus(
+          'The voice engine keeps freezing on this device, even after several restarts. This looks like a device/browser compatibility issue rather than a one-off glitch — try reloading the page, switching networks, or a different browser.',
+          'error'
+        );
+        showEngineRetry();
+        return;
+      }
+      setStatus(
+        `Generation stalled — restarting the voice engine and retrying… (attempt ${consecutiveWatchdogRestarts}/${MAX_CONSECUTIVE_WATCHDOG_RESTARTS})`,
+        'error'
+      );
       retryEngine();
     }
   }, WATCHDOG_CHECK_MS);
@@ -175,6 +197,8 @@ function handleChunkResult(msg) {
     handleChunkFailure(index, 'generated silent audio');
     return;
   }
+
+  consecutiveWatchdogRestarts = 0; // real progress - the engine is working now
 
   const blob = new Blob([msg.wavBuffer], { type: 'audio/wav' });
   const url = URL.createObjectURL(blob);
@@ -835,7 +859,7 @@ function wireUI() {
     saveSettings({ tryWebGpu: e.target.checked });
   });
 
-  els.engineRetryBtn.addEventListener('click', retryEngine);
+  els.engineRetryBtn.addEventListener('click', () => retryEngine(true));
 
   els.progressSlider.addEventListener('input', () => {
     isDraggingSlider = true;
