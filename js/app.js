@@ -1,6 +1,6 @@
 import { buildSentences } from './textSplit.js';
 import { hashText, saveBook, loadBook, loadSettings, saveSettings } from './db.js';
-import { VOICES, DEFAULT_VOICE, PREVIEW_TEXT, voiceById } from './voices.js';
+import { VOICES, DEFAULT_VOICE, PREVIEW_TEXT } from './voices.js';
 
 // ---------------------------------------------------------------------------
 // State
@@ -934,7 +934,8 @@ async function init() {
   startWatchdog();
 
   const settings = loadSettings();
-  state.voice = voiceById(settings.voice || DEFAULT_VOICE).id;
+  // One voice only: the voice picker is hidden, so always use the default.
+  state.voice = DEFAULT_VOICE;
   state.rate = settings.rate || 1;
   els.rateSlider.value = String(state.rate);
   els.rateLabel.textContent = `${state.rate.toFixed(2)}x`;
