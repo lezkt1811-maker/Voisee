@@ -96,6 +96,9 @@
 
     .hidden { display: none !important; }
 
+    #audioCard input[type="file"] { color: var(--text); margin-bottom: 0.7rem; }
+    #audioPlayer { width: 100%; margin-top: 0.4rem; }
+
     .howto { background: rgba(255, 20, 147, 0.08); border: 1px solid var(--border); border-radius: 10px; padding: 0.8rem 1rem; margin-bottom: 1.1rem; }
     .howto strong { color: var(--cyan); }
     .howto ol { margin: 0.4rem 0 0 1.2rem; }
@@ -356,6 +359,14 @@
     </div>
 
     <div id="statusDisplay" class="status status-ready">Loading…</div>
+
+    <!-- Audio file player: plays a ready-made audio file, no live voice needed -->
+    <div id="audioCard" class="card">
+        <label class="label">🎧 Play an audio file</label>
+        <p class="hint">Pick an audio file (MP3, WAV, M4A) from your phone. It plays instantly, with no waiting for the voice engine.</p>
+        <input type="file" id="audioFileInput" accept="audio/*">
+        <audio id="audioPlayer" controls class="hidden"></audio>
+    </div>
 
     <!-- Text input -->
     <div id="inputView" class="card">
