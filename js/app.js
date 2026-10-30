@@ -161,7 +161,9 @@ function handleWorkerMessage(e) {
       break;
     case 'ready':
       els.engineProgress.classList.add('hidden');
-      setStatus(`Voice engine ready (${msg.device === 'webgpu' ? 'WebGPU' : 'WebAssembly'}).`, 'ready');
+      const modeLabel = msg.device === 'webgpu' ? 'WebGPU' : crossOriginIsolated ? 'WebAssembly, multi-core' : 'WebAssembly, single-core';
+      console.info(`Voice engine mode: ${modeLabel} (crossOriginIsolated=${crossOriginIsolated})`);
+      setStatus(`Voice engine ready (${modeLabel}).`, 'ready');
       scheduleLookahead();
       break;
     case 'init-error':
