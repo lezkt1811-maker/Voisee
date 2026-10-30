@@ -25,6 +25,11 @@ const state = {
 };
 
 const chunkWaiters = new Map(); // sentenceIndex -> [resolve, ...]
+function setPreviewLoading(btnEl, loading) {
+  btnEl.classList.toggle('loading', loading);
+  btnEl.textContent = loading ? 'Loading…' : '▶ Preview';
+}
+
 const previewCache = new Map(); // voiceId -> {url, duration}
 const previewJobs = new Map(); // jobId -> {voiceId, btnEl}
 let previewSeq = 0;
@@ -80,7 +85,7 @@ function retryEngine(isManual = false) {
   // "pending" markers so they get re-requested fresh against the new worker.
   state.pendingIndices.clear();
   for (const btnEl of document.querySelectorAll('.voice-preview.loading')) {
-    btnEl.classList.remove('loading');
+    setPreviewLoading(btnEl, false);
   }
   previewJobs.clear();
 
@@ -268,7 +273,7 @@ function handleChunkFailure(index, reason) {
 function handlePreviewResult(msg) {
   const job = previewJobs.get(msg.id);
   previewJobs.delete(msg.id);
-  if (job) job.btnEl.classList.remove('loading');
+  if (job) setPreviewLoading(job.btnEl, false);
 
   if (msg.looksSilent) {
     setStatus(
@@ -295,7 +300,7 @@ function handlePreviewResult(msg) {
 function handlePreviewError(msg) {
   const job = previewJobs.get(msg.id);
   previewJobs.delete(msg.id);
-  if (job) job.btnEl.classList.remove('loading');
+  if (job) setPreviewLoading(job.btnEl, false);
   setStatus(`Voice preview failed: ${msg.message}`, 'error');
 }
 
@@ -814,8 +819,8 @@ function renderVoiceGrid() {
     const previewBtn = document.createElement('button');
     previewBtn.type = 'button';
     previewBtn.className = 'voice-preview';
-    previewBtn.title = `Preview ${v.name}`;
-    previewBtn.textContent = '🔊';
+    previewBtn.title = `Hear a sample of ${v.name}`;
+    previewBtn.textContent = '▶ Preview';
     previewBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       playPreview(v.id, previewBtn);
@@ -845,7 +850,7 @@ function playPreview(voiceId, btnEl) {
       .catch(() => setStatus('Preview is ready — tap 🔊 once more to play it (your browser needs a fresh tap).', 'ready'));
     return;
   }
-  btnEl.classList.add('loading');
+  setPreviewLoading(btnEl, true);
   ensureWorkerInit();
   const id = ++previewSeq;
   previewJobs.set(id, { voiceId, btnEl });

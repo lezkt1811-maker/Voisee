@@ -96,6 +96,12 @@
 
     .hidden { display: none !important; }
 
+    .howto { background: rgba(255, 20, 147, 0.08); border: 1px solid var(--border); border-radius: 10px; padding: 0.8rem 1rem; margin-bottom: 1.1rem; }
+    .howto strong { color: var(--cyan); }
+    .howto ol { margin: 0.4rem 0 0 1.2rem; }
+    .howto li { margin: 0.25rem 0; }
+    .hint { font-size: 0.9rem; color: var(--text-soft); margin: -0.2rem 0 0.7rem; }
+
     .section { margin-bottom: 1.3rem; }
     .section:last-child { margin-bottom: 0; }
 
@@ -306,10 +312,11 @@
         border-radius: 4px;
     }
     .voice-preview {
-        width: 3rem;
+        min-width: 6.8rem;
         flex-shrink: 0;
-        font-size: 1.15rem;
-        padding: 0.4rem;
+        font-size: 0.95rem;
+        font-weight: 700;
+        padding: 0.4rem 0.6rem;
     }
     .voice-preview.loading { animation: pulse 0.8s infinite; }
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
@@ -352,6 +359,14 @@
 
     <!-- Text input -->
     <div id="inputView" class="card">
+        <div class="howto">
+            <strong>How it works</strong>
+            <ol>
+                <li>Paste your text below and tap <b>Load Book</b>.</li>
+                <li>Pick a voice. Tap <b>▶ Preview</b> to hear it.</li>
+                <li>Tap <b>▶ Play</b>. The first sentence takes a moment, then it keeps going.</li>
+            </ol>
+        </div>
         <div class="section">
             <label class="label">📝 Paste your book or text</label>
             <textarea id="textInput" placeholder="Paste a chapter, article, or an entire novel here — there is no length limit."></textarea>
@@ -404,7 +419,8 @@
         </div>
 
         <div class="section">
-            <label class="label">🎤 American Voice (tap 🔊 to preview)</label>
+            <label class="label">🎤 Choose a voice</label>
+            <p class="hint">Tap the name to pick a voice. Tap ▶ Preview to hear a sample first. The first preview loads the voice engine, which can take a minute.</p>
             <div id="voiceGrid" class="voice-grid"></div>
         </div>
 
