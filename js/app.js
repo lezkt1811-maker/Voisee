@@ -941,6 +941,9 @@ async function init() {
 
   renderVoiceGrid();
   updateTransportUI();
+  // Start loading the voice engine right away, so it's usually ready by the
+  // time the text is pasted and Play is tapped.
+  ensureWorkerInit();
 
   if (settings.lastBookId) {
     const saved = await loadBook(settings.lastBookId).catch(() => null);
