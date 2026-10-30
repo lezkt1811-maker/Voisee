@@ -12,7 +12,7 @@ const MAX_CHUNK_LEN = 400;
 // this cuts both time-to-first-audio and the risk of playback catching up
 // to generation mid-book. Costs a little prosody naturalness (more, shorter
 // pauses) in exchange for speed.
-const SOFT_SPLIT_LEN = 120;
+const SOFT_SPLIT_LEN = 60;
 const CLAUSE_BREAK_REGEX = /[,;:—–]\s+/g; // comma/semicolon/colon/em-dash/en-dash + space
 
 let segmenter = null;
