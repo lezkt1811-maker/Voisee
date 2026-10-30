@@ -100,6 +100,19 @@ function markWorkerActivity() {
   watchdogRestarting = false;
 }
 
+// Multi-core (WASM threads) mode is switched on by the service worker in
+// index.html. If it stalls, this turns it off on this device and reloads.
+const THREADS_KEY = 'voisee-threads';
+function disableThreads() {
+  try {
+    localStorage.setItem(THREADS_KEY, 'off');
+  } catch (err) {
+    /* ignore: the reload still gets single-core mode for this session */
+  }
+  setStatus('Multi-core mode stalled on this device — switching to single-core mode and reloading…', 'error');
+  setTimeout(() => location.reload(), 1500);
+}
+
 const WATCHDOG_STALL_MS = 45000;
 const WATCHDOG_CHECK_MS = 5000;
 const MAX_CONSECUTIVE_WATCHDOG_RESTARTS = 3;
@@ -112,6 +125,13 @@ function startWatchdog() {
     const waitingOnSomething = state.pendingIndices.size > 0 || previewJobs.size > 0;
     if (waitingOnSomething && Date.now() - lastWorkerActivity > WATCHDOG_STALL_MS) {
       watchdogRestarting = true;
+      if (crossOriginIsolated) {
+        // The multi-core engine stalled on this device. Turn threads off for
+        // good here and reload into the single-core path, which is slower
+        // but has been the reliable one.
+        disableThreads();
+        return;
+      }
       consecutiveWatchdogRestarts++;
       if (consecutiveWatchdogRestarts > MAX_CONSECUTIVE_WATCHDOG_RESTARTS) {
         // Restarting hasn't helped several times in a row - stop looping

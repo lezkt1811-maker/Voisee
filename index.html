@@ -6,22 +6,37 @@
 <title>🎙️ Voisee — Free Book Reader</title>
 <link rel="icon" href="data:,">
 <script>
-  // Multi-threaded WASM (unlocked by the coi-serviceworker trick, which was
-  // used for a speed optimization) turned out to be unreliable on some
-  // Android Chrome builds - causing audio generation to hang indefinitely
-  // with no error, reported repeatedly. Reliability matters more than speed
-  // here, so that's reverted in favor of plain single-threaded WASM, which
-  // needs no service worker at all. This cleans up any copy of it a
-  // previous visit may have already installed, so it stops intercepting
-  // requests and the page goes back to normal (non-isolated) operation.
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then((regs) => {
-      for (const reg of regs) {
-        const url = (reg.active || reg.installing || reg.waiting)?.scriptURL || '';
-        if (url.includes('coi-serviceworker')) reg.unregister();
+  // Multi-threaded WASM needs cross-origin isolation, which GitHub Pages can't
+  // send as headers. A service worker (sw.js) adds them, and the voice engine
+  // then runs on multiple cores. If threads hang on a device, the app turns
+  // this off (see THREADS_KEY in js/app.js) and this script unregisters the
+  // worker so the page goes back to plain single-threaded operation.
+  const THREADS_KEY = 'voisee-threads';
+  const RELOAD_KEY = 'voisee-coi-reloaded';
+  (async () => {
+    if (!('serviceWorker' in navigator)) return;
+    let threadsOff = false;
+    try { threadsOff = localStorage.getItem(THREADS_KEY) === 'off'; } catch (e) {}
+    try {
+      if (threadsOff) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        for (const reg of regs) await reg.unregister();
+        return;
       }
-    }).catch(() => {});
-  }
+      if (crossOriginIsolated) return;
+      await navigator.serviceWorker.register('./sw.js');
+      // The first load isn't controlled by the worker yet, so reload once.
+      // The session flag stops a reload loop if isolation still doesn't take.
+      let alreadyReloaded = false;
+      try { alreadyReloaded = sessionStorage.getItem(RELOAD_KEY) === '1'; } catch (e) {}
+      if (!navigator.serviceWorker.controller && !alreadyReloaded) {
+        try { sessionStorage.setItem(RELOAD_KEY, '1'); } catch (e) {}
+        location.reload();
+      }
+    } catch (err) {
+      console.warn('Multi-threading unavailable:', err);
+    }
+  })();
 </script>
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
