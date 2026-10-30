@@ -59,7 +59,6 @@ function ensureWorkerInit() {
   if (workerInitStarted) return;
   workerInitStarted = true;
   const tryWebGpu = !!loadSettings().tryWebGpu;
-  els.webgpuCheckbox.disabled = true;
   setStatus('Loading local voice engine (first time only — will be cached)…', 'busy');
   els.engineProgress.classList.remove('hidden');
   worker.postMessage({ type: 'init', tryWebGpu });
@@ -891,7 +890,9 @@ function wireUI() {
   els.rateSlider.addEventListener('input', (e) => setRate(parseFloat(e.target.value)));
 
   els.webgpuCheckbox.addEventListener('change', (e) => {
+    // The engine picks its mode when it starts, so reload to apply the change.
     saveSettings({ tryWebGpu: e.target.checked });
+    location.reload();
   });
 
   els.engineRetryBtn.addEventListener('click', () => retryEngine(true));
