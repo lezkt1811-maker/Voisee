@@ -988,7 +988,6 @@ els.audioPlayer = document.getElementById('audioPlayer');
 els.renderBtn = document.getElementById('renderBtn');
 els.renderStatus = document.getElementById('renderStatus');
 els.mediaBar = document.getElementById('mediaBar');
-els.downloadMp3 = document.getElementById('downloadMp3');
 els.mediaPlay = document.getElementById('mediaPlay');
 els.mediaSlider = document.getElementById('mediaSlider');
 els.mediaTime = document.getElementById('mediaTime');
@@ -1135,8 +1134,6 @@ async function renderWholeArticle() {
 
   if (els.audioPlayer.src) URL.revokeObjectURL(els.audioPlayer.src);
   els.audioPlayer.src = URL.createObjectURL(encodeAudio(chunks, sampleRate));
-  els.downloadMp3.href = els.audioPlayer.src;
-  els.downloadMp3.classList.remove('hidden');
   showAudioPlayer();
   renderStarts = starts;
   renderSampleRate = sampleRate;
@@ -1144,7 +1141,7 @@ async function renderWholeArticle() {
   renderTranscriptWindow();
   updateHighlight();
   setRenderProgress(
-    `Ready: ${total} sentences, about ${formatTime(samplesSoFar / sampleRate)} long. Press play above, or download the MP3.`
+    `Ready: ${total} sentences, about ${formatTime(samplesSoFar / sampleRate)} long. Press play below.`
   );
   renderBusy = false;
   els.renderBtn.disabled = false;
