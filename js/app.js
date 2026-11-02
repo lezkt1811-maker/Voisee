@@ -989,10 +989,7 @@ els.audioFileInput.addEventListener('change', () => {
   renderStarts = [];
   if (els.audioPlayer.src) URL.revokeObjectURL(els.audioPlayer.src);
   els.audioPlayer.src = URL.createObjectURL(file);
-  els.audioPlayer.classList.remove('hidden');
-  els.audioPlayer.play().catch(() => {
-    /* browsers need a tap on the play control first; the controls are visible */
-  });
+  showAudioPlayer();
 });
 
 // ---------------------------------------------------------------------------
@@ -1001,6 +998,14 @@ els.audioFileInput.addEventListener('change', () => {
 // ---------------------------------------------------------------------------
 els.renderBtn = document.getElementById('renderBtn');
 els.renderStatus = document.getElementById('renderStatus');
+els.mediaBar = document.getElementById('mediaBar');
+els.mediaPlay = document.getElementById('mediaPlay');
+els.mediaSlider = document.getElementById('mediaSlider');
+els.mediaTime = document.getElementById('mediaTime');
+els.jumpBack30 = document.getElementById('jumpBack30');
+els.jumpBack10 = document.getElementById('jumpBack10');
+els.jumpFwd10 = document.getElementById('jumpFwd10');
+els.jumpFwd30 = document.getElementById('jumpFwd30');
 const pendingRenders = new Map(); // jobId -> {resolve, reject}
 let renderSeq = 0;
 let renderBusy = false;
@@ -1118,7 +1123,7 @@ async function renderWholeArticle() {
 
   if (els.audioPlayer.src) URL.revokeObjectURL(els.audioPlayer.src);
   els.audioPlayer.src = URL.createObjectURL(buildWav(chunks, sampleRate));
-  els.audioPlayer.classList.remove('hidden');
+  showAudioPlayer();
   renderStarts = starts;
   renderSampleRate = sampleRate;
   state.playIndex = 0;
@@ -1131,13 +1136,67 @@ async function renderWholeArticle() {
   els.renderBtn.disabled = false;
 }
 
-els.audioPlayer.addEventListener('timeupdate', () => {
+// Keeps the highlighted sentence in step with the audio, during play and after a seek.
+function syncHighlightToAudio() {
   if (!renderStarts.length) return;
   const idx = sentenceAtTime(els.audioPlayer.currentTime);
   if (idx === state.playIndex) return;
   state.playIndex = idx;
   renderTranscriptWindow();
   updateHighlight();
+}
+
+function showAudioPlayer() {
+  els.audioPlayer.classList.remove('hidden');
+  els.mediaBar.classList.remove('hidden');
+}
+
+function updateMediaTime() {
+  const a = els.audioPlayer;
+  els.mediaTime.textContent = `${formatTime(a.currentTime)} / ${formatTime(a.duration)}`;
+}
+
+function jumpAudio(seconds) {
+  const a = els.audioPlayer;
+  if (!a.src) return;
+  const end = isFinite(a.duration) ? a.duration : a.currentTime;
+  a.currentTime = Math.min(Math.max(0, a.currentTime + seconds), end);
+}
+
+let isDraggingMediaSlider = false;
+els.audioPlayer.addEventListener('loadedmetadata', () => {
+  if (isFinite(els.audioPlayer.duration)) els.mediaSlider.max = String(els.audioPlayer.duration);
+  updateMediaTime();
+});
+els.audioPlayer.addEventListener('timeupdate', () => {
+  if (!isDraggingMediaSlider) els.mediaSlider.value = String(els.audioPlayer.currentTime);
+  updateMediaTime();
+  syncHighlightToAudio();
+});
+els.audioPlayer.addEventListener('seeked', syncHighlightToAudio);
+els.audioPlayer.addEventListener('play', () => (els.mediaPlay.textContent = '⏸ Pause'));
+els.audioPlayer.addEventListener('pause', () => (els.mediaPlay.textContent = '▶ Play'));
+els.audioPlayer.addEventListener('ended', () => (els.mediaPlay.textContent = '▶ Play'));
+
+els.mediaPlay.addEventListener('click', () => {
+  if (!els.audioPlayer.src) return;
+  if (els.audioPlayer.paused) els.audioPlayer.play();
+  else els.audioPlayer.pause();
+});
+els.jumpBack30.addEventListener('click', () => jumpAudio(-30));
+els.jumpBack10.addEventListener('click', () => jumpAudio(-10));
+els.jumpFwd10.addEventListener('click', () => jumpAudio(10));
+els.jumpFwd30.addEventListener('click', () => jumpAudio(30));
+
+// Dragging the slider only previews the position; the audio seeks when released,
+// or immediately on a plain click (where no drag happens).
+els.mediaSlider.addEventListener('pointerdown', () => (isDraggingMediaSlider = true));
+els.mediaSlider.addEventListener('input', () => {
+  els.mediaTime.textContent = `${formatTime(Number(els.mediaSlider.value))} / ${formatTime(els.audioPlayer.duration)}`;
+});
+els.mediaSlider.addEventListener('change', () => {
+  isDraggingMediaSlider = false;
+  els.audioPlayer.currentTime = Number(els.mediaSlider.value);
 });
 els.renderBtn.addEventListener('click', renderWholeArticle);
 

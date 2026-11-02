@@ -97,7 +97,11 @@
     .hidden { display: none !important; }
 
     #audioCard input[type="file"] { color: var(--text); margin-bottom: 0.7rem; }
-    #audioPlayer { width: 100%; margin-top: 0.4rem; }
+    .media-bar { margin-top: 0.8rem; }
+    .media-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+    .media-buttons button { min-width: 4.8rem; }
+    #mediaSlider { width: 100%; margin: 0.9rem 0 0.3rem; accent-color: var(--magenta); }
+    .media-time { text-align: center; font-size: 0.9rem; color: var(--text-soft); }
 
     .howto { background: rgba(255, 20, 147, 0.08); border: 1px solid var(--border); border-radius: 10px; padding: 0.8rem 1rem; margin-bottom: 1.1rem; }
     .howto strong { color: var(--cyan); }
@@ -370,7 +374,18 @@
         <label class="label">🎧 Play an audio file</label>
         <p class="hint">Pick an audio file (MP3, WAV, M4A) from your phone. It plays instantly, with no waiting for the voice engine.</p>
         <input type="file" id="audioFileInput" accept="audio/*">
-        <audio id="audioPlayer" controls class="hidden"></audio>
+        <audio id="audioPlayer" class="hidden"></audio>
+        <div id="mediaBar" class="media-bar hidden">
+            <div class="media-buttons">
+                <button id="jumpBack30" type="button">⏪ 30s</button>
+                <button id="jumpBack10" type="button">↩ 10s</button>
+                <button id="mediaPlay" type="button" class="btn-primary">▶ Play</button>
+                <button id="jumpFwd10" type="button">10s ↪</button>
+                <button id="jumpFwd30" type="button">30s ⏩</button>
+            </div>
+            <input type="range" id="mediaSlider" min="0" max="0" step="0.1" value="0" aria-label="Playback position">
+            <div id="mediaTime" class="media-time">0:00 / 0:00</div>
+        </div>
     </div>
 
     <!-- Text input -->
