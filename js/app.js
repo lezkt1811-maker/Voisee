@@ -988,6 +988,7 @@ els.audioPlayer = document.getElementById('audioPlayer');
 els.renderBtn = document.getElementById('renderBtn');
 els.renderStatus = document.getElementById('renderStatus');
 els.mediaBar = document.getElementById('mediaBar');
+els.downloadMp3 = document.getElementById('downloadMp3');
 els.mediaPlay = document.getElementById('mediaPlay');
 els.mediaSlider = document.getElementById('mediaSlider');
 els.mediaTime = document.getElementById('mediaTime');
@@ -1061,6 +1062,28 @@ function buildWav(chunks, sampleRate) {
   return new Blob([buffer], { type: 'audio/wav' });
 }
 
+// Encodes the article as an MP3 (bundled lamejs). Falls back to WAV if the
+// encoder didn't load, so playback still works.
+function encodeMp3(chunks, sampleRate) {
+  const encoder = new lamejs.Mp3Encoder(1, sampleRate, 96);
+  const parts = [];
+  const block = 1152;
+  for (const chunk of chunks) {
+    for (let i = 0; i < chunk.length; i += block) {
+      const mp3 = encoder.encodeBuffer(chunk.subarray(i, i + block));
+      if (mp3.length) parts.push(new Uint8Array(mp3));
+    }
+  }
+  const end = encoder.flush();
+  if (end.length) parts.push(new Uint8Array(end));
+  return new Blob(parts, { type: 'audio/mpeg' });
+}
+
+function encodeAudio(chunks, sampleRate) {
+  if (typeof lamejs === 'undefined') return buildWav(chunks, sampleRate);
+  return encodeMp3(chunks, sampleRate);
+}
+
 // Finds the sentence playing at a given time (binary search over start offsets).
 function sentenceAtTime(seconds) {
   const target = seconds * renderSampleRate;
@@ -1111,7 +1134,9 @@ async function renderWholeArticle() {
   }
 
   if (els.audioPlayer.src) URL.revokeObjectURL(els.audioPlayer.src);
-  els.audioPlayer.src = URL.createObjectURL(buildWav(chunks, sampleRate));
+  els.audioPlayer.src = URL.createObjectURL(encodeAudio(chunks, sampleRate));
+  els.downloadMp3.href = els.audioPlayer.src;
+  els.downloadMp3.classList.remove('hidden');
   showAudioPlayer();
   renderStarts = starts;
   renderSampleRate = sampleRate;
@@ -1119,7 +1144,7 @@ async function renderWholeArticle() {
   renderTranscriptWindow();
   updateHighlight();
   setRenderProgress(
-    `Ready: ${total} sentences, about ${formatTime(samplesSoFar / sampleRate)} long. Press play on the player above.`
+    `Ready: ${total} sentences, about ${formatTime(samplesSoFar / sampleRate)} long. Press play above, or download the MP3.`
   );
   renderBusy = false;
   els.renderBtn.disabled = false;
