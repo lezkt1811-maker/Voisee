@@ -979,18 +979,7 @@ async function init() {
   setStatus('Paste text and tap "Load Book" to begin.', 'ready');
 }
 
-// Audio file player: plays a file picked from the phone directly, with the
-// browser's own audio controls. Nothing is generated, so it starts at once.
-els.audioFileInput = document.getElementById('audioFileInput');
 els.audioPlayer = document.getElementById('audioPlayer');
-els.audioFileInput.addEventListener('change', () => {
-  const file = els.audioFileInput.files[0];
-  if (!file) return;
-  renderStarts = [];
-  if (els.audioPlayer.src) URL.revokeObjectURL(els.audioPlayer.src);
-  els.audioPlayer.src = URL.createObjectURL(file);
-  showAudioPlayer();
-});
 
 // ---------------------------------------------------------------------------
 // Render-then-play: make the whole article first, then play one audio file.
