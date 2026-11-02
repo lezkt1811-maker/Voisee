@@ -182,7 +182,11 @@ function handleWorkerMessage(e) {
       if (msg.kind === 'preview') handlePreviewResult(msg);
       else handleChunkResult(msg);
       break;
+    case 'pcm':
+      handlePcm(msg);
+      break;
     case 'gen-error':
+      if (failPendingRender(msg)) break;
       if (msg.kind === 'preview') handlePreviewError(msg);
       else handleChunkError(msg);
       break;
@@ -982,6 +986,7 @@ els.audioPlayer = document.getElementById('audioPlayer');
 els.audioFileInput.addEventListener('change', () => {
   const file = els.audioFileInput.files[0];
   if (!file) return;
+  renderStarts = [];
   if (els.audioPlayer.src) URL.revokeObjectURL(els.audioPlayer.src);
   els.audioPlayer.src = URL.createObjectURL(file);
   els.audioPlayer.classList.remove('hidden');
@@ -989,5 +994,151 @@ els.audioFileInput.addEventListener('change', () => {
     /* browsers need a tap on the play control first; the controls are visible */
   });
 });
+
+// ---------------------------------------------------------------------------
+// Render-then-play: make the whole article first, then play one audio file.
+// Playback is smooth because nothing is generated while it plays.
+// ---------------------------------------------------------------------------
+els.renderBtn = document.getElementById('renderBtn');
+els.renderStatus = document.getElementById('renderStatus');
+const pendingRenders = new Map(); // jobId -> {resolve, reject}
+let renderSeq = 0;
+let renderBusy = false;
+let renderStarts = []; // sample offset where each sentence starts in the rendered file
+let renderSampleRate = 24000;
+const RENDER_GAP_SECONDS = 0.3; // short pause between sentences
+
+function setRenderProgress(text) {
+  els.renderStatus.textContent = text;
+}
+
+function renderSentence(text) {
+  return new Promise((resolve, reject) => {
+    const id = ++renderSeq;
+    pendingRenders.set(id, { resolve, reject });
+    worker.postMessage({ type: 'generate', kind: 'render', id, text, voice: DEFAULT_VOICE });
+  });
+}
+
+function handlePcm(msg) {
+  const pending = pendingRenders.get(msg.id);
+  if (!pending) return;
+  pendingRenders.delete(msg.id);
+  pending.resolve({ sampleRate: msg.sampleRate, samples: new Int16Array(msg.samples) });
+}
+
+function failPendingRender(msg) {
+  const pending = pendingRenders.get(msg.id);
+  if (!pending) return false;
+  pendingRenders.delete(msg.id);
+  pending.reject(new Error(msg.message || 'render failed'));
+  return true;
+}
+
+function writeAscii(view, offset, text) {
+  for (let i = 0; i < text.length; i++) view.setUint8(offset + i, text.charCodeAt(i));
+}
+
+// Joins 16-bit mono sample chunks into one WAV file.
+function buildWav(chunks, sampleRate) {
+  const total = chunks.reduce((n, c) => n + c.length, 0);
+  const dataBytes = total * 2;
+  const buffer = new ArrayBuffer(44 + dataBytes);
+  const view = new DataView(buffer);
+  writeAscii(view, 0, 'RIFF');
+  view.setUint32(4, 36 + dataBytes, true);
+  writeAscii(view, 8, 'WAVE');
+  writeAscii(view, 12, 'fmt ');
+  view.setUint32(16, 16, true); // PCM header size
+  view.setUint16(20, 1, true); // PCM format
+  view.setUint16(22, 1, true); // mono
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * 2, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
+  writeAscii(view, 36, 'data');
+  view.setUint32(40, dataBytes, true);
+  const samples = new Int16Array(buffer, 44);
+  let offset = 0;
+  for (const chunk of chunks) {
+    samples.set(chunk, offset);
+    offset += chunk.length;
+  }
+  return new Blob([buffer], { type: 'audio/wav' });
+}
+
+// Finds the sentence playing at a given time (binary search over start offsets).
+function sentenceAtTime(seconds) {
+  const target = seconds * renderSampleRate;
+  let lo = 0;
+  let hi = renderStarts.length - 1;
+  while (lo < hi) {
+    const mid = (lo + hi + 1) >> 1;
+    if (renderStarts[mid] <= target) lo = mid;
+    else hi = mid - 1;
+  }
+  return lo;
+}
+
+async function renderWholeArticle() {
+  if (renderBusy) return;
+  if (!state.sentences.length) {
+    setRenderProgress('Paste your text and tap "Load Book" first.');
+    return;
+  }
+  renderBusy = true;
+  els.renderBtn.disabled = true;
+  ensureWorkerInit();
+  worker.postMessage({ type: 'clearChunkQueue' });
+
+  const total = state.sentences.length;
+  const chunks = [];
+  const starts = [];
+  let sampleRate = 24000;
+  let gap = null;
+  let samplesSoFar = 0;
+  try {
+    for (let i = 0; i < total; i++) {
+      setRenderProgress(`Rendering audio… ${i} / ${total} sentences. Keep this tab open.`);
+      const { sampleRate: sr, samples } = await renderSentence(state.sentences[i].text);
+      if (gap === null) {
+        sampleRate = sr;
+        gap = new Int16Array(Math.round(RENDER_GAP_SECONDS * sr));
+      }
+      starts.push(samplesSoFar);
+      chunks.push(samples, gap);
+      samplesSoFar += samples.length + gap.length;
+    }
+  } catch (err) {
+    setRenderProgress(`Rendering stopped: ${err.message}. Tap the button to try again.`);
+    renderBusy = false;
+    els.renderBtn.disabled = false;
+    return;
+  }
+
+  if (els.audioPlayer.src) URL.revokeObjectURL(els.audioPlayer.src);
+  els.audioPlayer.src = URL.createObjectURL(buildWav(chunks, sampleRate));
+  els.audioPlayer.classList.remove('hidden');
+  renderStarts = starts;
+  renderSampleRate = sampleRate;
+  state.playIndex = 0;
+  renderTranscriptWindow();
+  updateHighlight();
+  setRenderProgress(
+    `Ready: ${total} sentences, about ${formatTime(samplesSoFar / sampleRate)} long. Press play on the player above.`
+  );
+  renderBusy = false;
+  els.renderBtn.disabled = false;
+}
+
+els.audioPlayer.addEventListener('timeupdate', () => {
+  if (!renderStarts.length) return;
+  const idx = sentenceAtTime(els.audioPlayer.currentTime);
+  if (idx === state.playIndex) return;
+  state.playIndex = idx;
+  renderTranscriptWindow();
+  updateHighlight();
+});
+els.renderBtn.addEventListener('click', renderWholeArticle);
 
 init();

@@ -362,6 +362,11 @@
 
     <!-- Audio file player: plays a ready-made audio file, no live voice needed -->
     <div id="audioCard" class="card">
+        <label class="label">🎬 Read a whole article</label>
+        <p class="hint">Paste your text and tap Load Book first. Then tap Render. It makes the whole article before playing, so playback doesn't stop. Keep the tab open while it renders.</p>
+        <button id="renderBtn" class="btn-primary">🎬 Render whole article</button>
+        <p id="renderStatus" class="hint"></p>
+        <hr class="divider">
         <label class="label">🎧 Play an audio file</label>
         <p class="hint">Pick an audio file (MP3, WAV, M4A) from your phone. It plays instantly, with no waiting for the voice engine.</p>
         <input type="file" id="audioFileInput" accept="audio/*">

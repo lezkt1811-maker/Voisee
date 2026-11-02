@@ -118,9 +118,28 @@ function peakAmplitude(samples) {
   return peak;
 }
 
+// Full-article rendering: 16-bit PCM is half the size of Float32, which keeps
+// a long article's memory use manageable. The buffer is transferred, not copied.
+function toInt16(float32) {
+  const out = new Int16Array(float32.length);
+  for (let i = 0; i < float32.length; i++) {
+    const v = Math.max(-1, Math.min(1, float32[i]));
+    out[i] = v < 0 ? v * 0x8000 : v * 0x7fff;
+  }
+  return out;
+}
+
 async function runJob(job) {
   try {
     const audio = await tts.generate(job.text, { voice: job.voice, speed: 1 });
+    if (job.kind === 'render') {
+      const pcm = toInt16(audio.audio);
+      self.postMessage(
+        { type: 'pcm', id: job.id, sampleRate: audio.sampling_rate, samples: pcm.buffer },
+        [pcm.buffer]
+      );
+      return;
+    }
     const looksSilent = peakAmplitude(audio.audio) < SILENCE_PEAK_THRESHOLD;
     const wavBuffer = audio.toWav();
     const duration = audio.audio.length / audio.sampling_rate;
