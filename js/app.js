@@ -1098,8 +1098,12 @@ function sentenceAtTime(seconds) {
 
 async function renderWholeArticle() {
   if (renderBusy) return;
+  // Pasted text that isn't loaded yet is loaded now, so Render is the only step.
+  if (!state.sentences.length && els.textInput.value.trim()) {
+    await loadBookFromText(els.textInput.value);
+  }
   if (!state.sentences.length) {
-    setRenderProgress('Paste your text and tap "Load Book" first.');
+    setRenderProgress('Paste your text in the box above first.');
     return;
   }
   renderBusy = true;
